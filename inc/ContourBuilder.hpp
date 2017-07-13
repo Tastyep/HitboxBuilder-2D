@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Rect.hpp>
