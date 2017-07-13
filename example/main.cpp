@@ -9,7 +9,7 @@
 
 #include "ContourBuilder.hpp"
 #include "PolygonBuilder.hpp"
-#include "Triangulator.hpp"
+#include "PolygonPartitioner.hpp"
 
 class Window {
  public:
@@ -41,7 +41,7 @@ class Window {
 
     auto polygon = _polygonBuilder.make(contour, _accuracy);
     auto pVertices = this->buildPolygon(polygon);
-    auto tVertices = this->buildTriangles(polygon);
+    auto tVertices = this->partitionPolygon(polygon);
 
     while (_window.isOpen()) {
       while (_window.pollEvent(event)) {
@@ -51,14 +51,14 @@ class Window {
         if (this->handleEvents(event)) {
           auto polygon = _polygonBuilder.make(contour, _accuracy);
           pVertices = this->buildPolygon(polygon);
-          tVertices = this->buildTriangles(polygon);
+          tVertices = this->partitionPolygon(polygon);
           _window.clear();
         }
       }
       _window.draw(marioSprite);
       // _window.draw(cVertices);
       _window.draw(tVertices);
-      _window.draw(pVertices);
+      // _window.draw(pVertices);
       _window.display();
     }
   }
@@ -74,24 +74,24 @@ class Window {
     return pVertices;
   }
 
-  sf::VertexArray buildTriangles(const std::vector<sf::Vector2i>& polygon) {
-    auto triangles = _triangulator.convert(polygon);
-    sf::VertexArray tVertices(sf::PrimitiveType::LineStrip, 0);
+  sf::VertexArray partitionPolygon(const std::vector<sf::Vector2i>& polygon) {
+    auto pPolygons = _polygonPartitioner.make(polygon);
+    sf::VertexArray ppVertices(sf::PrimitiveType::LineStrip, 0);
 
-    for (size_t i = 0; i < triangles.size(); ++i) {
-      const auto& triangle = triangles[i];
+    for (size_t i = 0; i < pPolygons.size(); ++i) {
+      const auto& polygon = pPolygons[i];
 
-      for (const auto& p : triangle) {
-        tVertices.append(sf::Vertex(static_cast<sf::Vector2f>(p)));
+      for (const auto& p : polygon) {
+        ppVertices.append(sf::Vertex(static_cast<sf::Vector2f>(p)));
       }
-      tVertices.append(sf::Vertex(static_cast<sf::Vector2f>(triangle.front())));
+      ppVertices.append(sf::Vertex(static_cast<sf::Vector2f>(polygon.front())));
     }
-    for (const auto& p : triangles.front()) {
-      tVertices.append(sf::Vertex(static_cast<sf::Vector2f>(p)));
+    for (const auto& p : pPolygons.front()) {
+      ppVertices.append(sf::Vertex(static_cast<sf::Vector2f>(p)));
     }
-    tVertices.append(sf::Vertex(static_cast<sf::Vector2f>(triangles.front().front())));
+    ppVertices.append(sf::Vertex(static_cast<sf::Vector2f>(pPolygons.front().front())));
 
-    return tVertices;
+    return ppVertices;
   }
 
   bool handleEvents(const sf::Event& event) {
@@ -115,7 +115,7 @@ class Window {
   sf::RenderWindow _window;
   HitboxBuilder::ContourBuilder _contourBuilder;
   HitboxBuilder::PolygonBuilder _polygonBuilder;
-  HitboxBuilder::Triangulator _triangulator;
+  HitboxBuilder::PolygonPartitioner _polygonPartitioner;
 
  private:
   int _accuracy{ 80 };

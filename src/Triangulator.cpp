@@ -5,7 +5,7 @@
 
 namespace HitboxBuilder {
 
-std::vector<std::array<sf::Vector2i, 3>> Triangulator::convert(std::vector<sf::Vector2i> polygon) const {
+std::vector<std::vector<sf::Vector2i>> Triangulator::convert(std::vector<sf::Vector2i> polygon) const {
   std::vector<Triangle> triangles;
   bool success;
   Triangle triangle;
@@ -22,7 +22,7 @@ std::vector<std::array<sf::Vector2i, 3>> Triangulator::convert(std::vector<sf::V
 
 std::pair<bool, Triangulator::Triangle> Triangulator::nextEar(std::vector<sf::Vector2i>& polygon) const {
   size_t size = polygon.size();
-  std::array<sf::Vector2i, 3> triangle;
+  Triangle triangle;
 
   if (size < 3) {
     return { false, {} };
@@ -35,7 +35,7 @@ std::pair<bool, Triangulator::Triangle> Triangulator::nextEar(std::vector<sf::Ve
       bool triTest = false;
       triangle = { polygon[(i + size - 1) % size], polygon[i], polygon[(i + 1) % size] };
 
-      if (this->isTriangleConvex(triangle)) {
+      if (this->isAngleReflex(triangle)) {
         for (const auto& point : polygon) {
           if (this->isPointVertice(triangle, point))
             continue;
