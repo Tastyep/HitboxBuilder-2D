@@ -9,7 +9,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 find_package(SFML 2.1 REQUIRED system window graphics audio)
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -g")
+set(CMAKE_EXE_LINKER_FLAGS  "-g" )
 
 include_directories (${PROJECT_SOURCE_DIR}/inc)
 
