@@ -7,9 +7,7 @@
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "ContourBuilder.hpp"
-#include "PolygonBuilder.hpp"
-#include "PolygonPartitioner.hpp"
+#include "HitboxManager.hpp"
 
 class Window {
  public:
@@ -21,34 +19,11 @@ class Window {
 
   void run() {
     sf::Event event;
-    sf::Texture texture;
 
-    if (!texture.loadFromFile("../marioBig.png")) {
-      std::cerr << "Could not find the texture '../marioBig.png'" << std::endl;
-      this->close();
-      return;
-    }
+    this->loadImages();
 
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 600, 600 });
-    sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 480, 640 }); // marioBig
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 576, 598 }); // dog
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 640, 739 }); // Z
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 581, 661 }); // A
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 960, 584 }); // bat
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 408, 599 }); // human
-    // sf::Sprite marioSprite(texture, sf::IntRect{ 0, 0, 600, 320 }); // kraken
-
-    auto contour = _contourBuilder.make(marioSprite);
-    sf::VertexArray cVertices(sf::PrimitiveType::LineStrip, 0);
-    for (const auto& p : contour) {
-      cVertices.append(sf::Vertex(sf::Vector2f{ static_cast<float>(p.x), static_cast<float>(p.y) }));
-    }
-    cVertices.append(
-      sf::Vertex(sf::Vector2f{ static_cast<float>(contour.front().x), static_cast<float>(contour.front().y) }));
-
-    auto polygon = _polygonBuilder.make(contour, _accuracy);
-    auto pVertices = this->buildPolygon(polygon);
-    auto tVertices = this->partitionPolygon(polygon);
+    auto tVertices = this->buildPolygon();
+    auto bound = this->buildBoundingBox();
 
     _window.clear(sf::Color(0, 0, 0));
     while (_window.isOpen()) {
@@ -57,38 +32,47 @@ class Window {
           this->close();
         }
         if (this->handleEvents(event)) {
-          auto polygon = _polygonBuilder.make(contour, _accuracy);
-          pVertices = this->buildPolygon(polygon);
-          tVertices = this->partitionPolygon(polygon);
+          tVertices = this->buildPolygon();
+          bound = this->buildBoundingBox();
           _window.clear(sf::Color(0, 0, 0));
         }
       }
-      _window.draw(marioSprite);
-      // _window.draw(cVertices);
+      _window.draw(_sprites[_spriteIdx]);
       for (const auto& v : tVertices) {
         _window.draw(v);
       }
-      _window.draw(pVertices);
+      _window.draw(bound);
       _window.display();
     }
   }
 
-  sf::VertexArray buildPolygon(const std::vector<sf::Vector2i>& polygon) {
-    sf::VertexArray pVertices(sf::PrimitiveType::LineStrip, 0);
-    for (size_t i = 0; i < polygon.size(); ++i) {
-      const auto& p = polygon[i];
-      pVertices.append(sf::Vertex(static_cast<sf::Vector2f>(p), sf::Color::Green));
+  void loadImages() {
+    const std::vector<std::string> paths{ "circle", "marioBig", "dog", "Z", "A", "bat", "human", "kraken" };
+    _textures.reserve(paths.size());
+
+    for (const auto& path : paths) {
+      sf::Texture texture;
+
+      if (!texture.loadFromFile("../" + path + ".png")) {
+        std::cerr << "Could not find the texture '../" << path << ".png'" << std::endl;
+        this->close();
+        return;
+      }
+
+      auto textureSize = texture.getSize();
+      _textures.push_back(std::move(texture));
+      sf::Sprite sprite(_textures.back(), sf::IntRect(0, 0, textureSize.x, textureSize.y));
+      _sprites.push_back(std::move(sprite));
     }
-    pVertices.append(sf::Vertex(static_cast<sf::Vector2f>(polygon.front()), sf::Color::Green));
-    return pVertices;
   }
 
-  std::vector<sf::VertexArray> partitionPolygon(const std::vector<sf::Vector2i>& polygon) {
-    auto pPolygons = _polygonPartitioner.make(polygon);
+  std::vector<sf::VertexArray> buildPolygon() {
+    _hitboxManager.load(_spriteIdx, _sprites[_spriteIdx], _accuracy);
+    auto polygons = _hitboxManager.skeleton(_spriteIdx);
     std::vector<sf::VertexArray> ppVertices;
 
-    for (size_t i = 0; i < pPolygons.size(); ++i) {
-      const auto& polygon = pPolygons[i];
+    for (size_t i = 0; i < polygons.size(); ++i) {
+      const auto& polygon = polygons[i];
       sf::VertexArray poly(sf::PrimitiveType::LineStrip, 0);
 
       for (size_t j = 0; j < polygon.size(); ++j) {
@@ -103,15 +87,34 @@ class Window {
     return ppVertices;
   }
 
+  sf::VertexArray buildBoundingBox() const {
+    auto boundingBox = _hitboxManager.boundingBox(_spriteIdx);
+    sf::VertexArray bound(sf::PrimitiveType::LineStrip, 0);
+
+    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left, boundingBox.top)));
+    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left + boundingBox.width, boundingBox.top)));
+    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left + boundingBox.width, boundingBox.top + boundingBox.height)));
+    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left, boundingBox.top + boundingBox.height)));
+    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left, boundingBox.top)));
+
+    return bound;
+  }
+
   bool handleEvents(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed) {
       if (event.key.code == sf::Keyboard::Left) {
         _accuracy = std::max(0, _accuracy - 5);
-        return true;
       } else if (event.key.code == sf::Keyboard::Right) {
         _accuracy = std::min(100, _accuracy + 5);
-        return true;
+      } else if (event.key.code == sf::Keyboard::Up) {
+        _spriteIdx = std::min(static_cast<int>(_sprites.size()) - 1, _spriteIdx + 1);
+      } else if (event.key.code == sf::Keyboard::Down) {
+        _spriteIdx = std::max(0, _spriteIdx - 1);
       }
+      return event.key.code == sf::Keyboard::Left ||  //
+             event.key.code == sf::Keyboard::Right || //
+             event.key.code == sf::Keyboard::Up ||    //
+             event.key.code == sf::Keyboard::Down;
     }
     return false;
   }
@@ -122,12 +125,13 @@ class Window {
 
  private:
   sf::RenderWindow _window;
-  HitboxBuilder::ContourBuilder _contourBuilder;
-  HitboxBuilder::PolygonBuilder _polygonBuilder;
-  HitboxBuilder::PolygonPartitioner _polygonPartitioner;
+  HitboxBuilder::HitboxManager<int> _hitboxManager;
+  std::vector<sf::Texture> _textures;
+  std::vector<sf::Sprite> _sprites;
 
  private:
   int _accuracy{ 0 };
+  int _spriteIdx{ 0 };
 };
 
 int main() {
