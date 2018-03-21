@@ -12,7 +12,7 @@
 class Window {
  public:
   Window()
-    : _window(sf::VideoMode(1280, 1024), "InputConverter") {
+    : _window(sf::VideoMode(1280, 1024), "HitboxBuilder") {
     _window.setFramerateLimit(30);
     _window.setKeyRepeatEnabled(false);
   }
@@ -23,7 +23,6 @@ class Window {
     this->loadImages();
 
     auto tVertices = this->buildPolygon();
-    auto bound = this->buildBoundingBox();
 
     _window.clear(sf::Color(0, 0, 0));
     while (_window.isOpen()) {
@@ -33,7 +32,6 @@ class Window {
         }
         if (this->handleEvents(event)) {
           tVertices = this->buildPolygon();
-          bound = this->buildBoundingBox();
           _window.clear(sf::Color(0, 0, 0));
         }
       }
@@ -41,7 +39,6 @@ class Window {
       for (const auto& v : tVertices) {
         _window.draw(v);
       }
-      _window.draw(bound);
       _window.display();
     }
   }
@@ -53,15 +50,15 @@ class Window {
     for (const auto& file : files) {
       sf::Texture texture;
 
-      const auto path = "../" + file + ".png";
+      const auto path = "../example/assets/" + file + ".png";
       if (!texture.loadFromFile(path)) {
         std::cerr << "Could not find the texture '" << path << "'" << std::endl;
         this->close();
         return;
       }
-
-      auto textureSize = texture.getSize();
+      const auto textureSize = texture.getSize();
       _textures.push_back(std::move(texture));
+
       sf::Sprite sprite(_textures.back(), sf::IntRect(0, 0, textureSize.x, textureSize.y));
       _sprites.push_back(std::move(sprite));
     }

@@ -1,8 +1,8 @@
 cmake_minimum_required (VERSION 2.8.1)
 cmake_policy(SET CMP0042 NEW)
 
-set(NAME "HitboxBuilder")
-project (${NAME} CXX)
+set(PROJECT_NAME "HitboxBuilder")
+project (${PROJECT_NAME} CXX)
 
 # Global variables
 set(MODULE_DIR cmake)
@@ -10,23 +10,33 @@ set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 set(LIB_DIR lib)
 set(TESTBED_DIR example)
+set(TESTER_NAME "${PROJECT_NAME}-tester")
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+# CMake properties
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
+set(PREDEFINED_TARGETS_FOLDER "CMake")
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/${MODULE_DIR})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE ${BUILD_TYPE})
 
-find_package(SFML 2.1 REQUIRED system window graphics audio)
+message(STATUS "Building ${BUILD_TYPE} ${PROJECT_NAME}\n----------------------------")
 
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -g")
-set(CMAKE_EXE_LINKER_FLAGS  "-g" )
+# Resolve internal dependency
+include(ResolveSFML)
 
-include_directories (${PROJECT_SOURCE_DIR}/${INCLUDE_DIR})
+# Set compiler flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
 
 file(GLOB_RECURSE LIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/*pp")
 file(GLOB_RECURSE TESTBED_SOURCE_FILES "${PROJECT_SOURCE_DIR}/${TESTBED_DIR}/*pp")
 
-list(APPEND LIB_SOURCE_FILES ${TESTBED_SOURCE_FILES})
-message(STATUS "LIB_SOURCE_FILES: ${LIB_SOURCE_FILES}")
+include_directories (${PROJECT_SOURCE_DIR}/${INCLUDE_DIR})
 
-add_executable(${NAME} ${LIB_SOURCE_FILES})
+add_library(${PROJECT_NAME} STATIC ${LIB_SOURCE_FILES})
 
-target_link_libraries (${NAME} ${SFML_LIBRARIES})
+if(HITBOX_BUILDER_BUILD_TESTBED)
+  message(STATUS "Configuring target '${TESTER_NAME}'")
+  add_executable(${TESTER_NAME} ${TESTBED_SOURCE_FILES})
+  target_link_libraries (${TESTER_NAME} ${EXTERNAL_LIBRARIES} ${PROJECT_NAME})
+endif()
