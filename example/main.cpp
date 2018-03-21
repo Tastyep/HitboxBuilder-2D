@@ -47,14 +47,15 @@ class Window {
   }
 
   void loadImages() {
-    const std::vector<std::string> paths{ "circle", "marioBig", "dog", "Z", "A", "bat", "human", "kraken" };
-    _textures.reserve(paths.size());
+    const std::vector<std::string> files{ "circle", "marioBig", "dog", "Z", "A", "bat", "human", "kraken" };
+    _textures.reserve(files.size());
 
-    for (const auto& path : paths) {
+    for (const auto& file : files) {
       sf::Texture texture;
 
-      if (!texture.loadFromFile("../" + path + ".png")) {
-        std::cerr << "Could not find the texture '../" << path << ".png'" << std::endl;
+      const auto path = "../" + file + ".png";
+      if (!texture.loadFromFile(path)) {
+        std::cerr << "Could not find the texture '" << path << "'" << std::endl;
         this->close();
         return;
       }

@@ -1,8 +1,9 @@
-#include "BoundingBoxBuilder.hpp"
+#include "detail/BoundingBoxBuilder.hpp"
 
 #include <algorithm>
 
 namespace HitboxBuilder {
+namespace Detail {
 
 sf::IntRect BoundingBoxBuilder::make(const std::vector<sf::Vector2i>& polygon) const {
   sf::Vector2i tl = polygon.front(), br = polygon.front();
@@ -17,4 +18,5 @@ sf::IntRect BoundingBoxBuilder::make(const std::vector<sf::Vector2i>& polygon) c
   return sf::IntRect{ tl.x, tl.y, br.x - tl.x, br.y - tl.y };
 }
 
+} /* namespace Detail */
 } /* namespace HitboxBuilder */

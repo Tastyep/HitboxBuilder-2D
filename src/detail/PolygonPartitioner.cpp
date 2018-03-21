@@ -1,10 +1,11 @@
-#include "PolygonPartitioner.hpp"
+#include "detail/PolygonPartitioner.hpp"
 
 #include <tuple>
 
 namespace HitboxBuilder {
+namespace Detail {
 
-std::vector<std::vector<sf::Vector2i>> PolygonPartitioner::make(std::vector<sf::Vector2i> polygon) const {
+std::vector<std::vector<sf::Vector2f>> PolygonPartitioner::make(std::vector<sf::Vector2f> polygon) const {
   if (this->isPolygonConvex(polygon)) {
     return { polygon };
   }
@@ -64,8 +65,9 @@ std::vector<PolygonPartitioner::Polygon> PolygonPartitioner::make(std::vector<Tr
   return triangles;
 }
 
-std::pair<bool, size_t> PolygonPartitioner::findDiagonal(const auto& triangles, auto& polygonB, const auto& polygonA,
-                                                         size_t i) const {
+template <typename PolyItB, typename PolyItA>
+std::pair<bool, size_t> PolygonPartitioner::findDiagonal(const std::vector<Triangle>& triangles, PolyItB& polygonB,
+                                                         const PolyItA& polygonA, size_t i) const {
   const auto& pA1 = (*polygonA)[i];
   const auto& pA2 = (*polygonA)[(i + 1) % _polygonASize];
   size_t j;
@@ -100,4 +102,5 @@ bool PolygonPartitioner::isPolygonConvex(const Polygon& polygon) const {
   return (i == polygonSize);
 }
 
+} /* namespace Detail */
 } /* namespace HitboxBuilder */

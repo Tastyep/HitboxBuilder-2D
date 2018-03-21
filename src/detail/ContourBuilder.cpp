@@ -1,4 +1,4 @@
-#include "ContourBuilder.hpp"
+#include "detail/ContourBuilder.hpp"
 
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -6,6 +6,7 @@
 #include <iostream>
 
 namespace HitboxBuilder {
+namespace Detail {
 
 std::vector<sf::Vector2i> ContourBuilder::make(const sf::Sprite& sprite) const {
   const sf::Texture* texture = sprite.getTexture();
@@ -129,4 +130,5 @@ bool ContourBuilder::isPixelSolid(int x, int y) const {
   return (_image->getPixel(x + _bound.left, y + _bound.top).a > alphaThreshold);
 }
 
+} /* namespace Detail */
 } /* namespace HitboxBuilder */
