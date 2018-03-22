@@ -20,9 +20,10 @@ std::vector<Polygon> PolygonPartitioner::make(std::vector<Triangle> triangles) c
   for (auto polygonA = triangles.begin(); polygonA != triangles.end(); ++polygonA) {
     _polygonASize = polygonA->size();
 
-    for (size_t i = 0; i < _polygonASize; ++i) {
+    for (int verticeIdx = 0; static_cast<size_t>(verticeIdx) < _polygonASize; ++verticeIdx) {
       decltype(polygonA) polygonB;
       bool diagonalFound;
+      const auto i = static_cast<size_t>(verticeIdx); // Make a copy to cast only once.
       size_t j;
 
       std::tie(diagonalFound, j) = this->findDiagonal(triangles, polygonB, polygonA, i);
@@ -59,7 +60,7 @@ std::vector<Polygon> PolygonPartitioner::make(std::vector<Triangle> triangles) c
       *polygonA = std::move(polygon);
       triangles.erase(polygonB);
       _polygonASize = polygonA->size();
-      i = -1;
+      verticeIdx = 0;
     }
   }
   return triangles;

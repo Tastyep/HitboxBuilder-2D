@@ -1,6 +1,7 @@
 #ifndef HITBOX_BUILDER_DETAIL_POLYGON_BUILDER_HPP
 #define HITBOX_BUILDER_DETAIL_POLYGON_BUILDER_HPP
 
+#include <cstddef>
 #include <vector>
 
 #include <SFML/System/Vector2.hpp>

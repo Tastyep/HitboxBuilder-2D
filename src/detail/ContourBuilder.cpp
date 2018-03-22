@@ -72,7 +72,7 @@ void ContourBuilder::step(std::vector<sf::Vector2i>& contour,
                           const sf::Vector2i& point,
                           StepDirection& nextStep) const {
   StepDirection cuStep = nextStep;
-  int state = this->pixelState(point);
+  const auto state = this->pixelState(point);
 
   this->savePoint(contour, point);
   // clang-format off
@@ -113,13 +113,13 @@ void ContourBuilder::savePoint(std::vector<sf::Vector2i>& contour, const sf::Vec
   }
 }
 
-int ContourBuilder::pixelState(const sf::Vector2i& p) const {
+size_t ContourBuilder::pixelState(const sf::Vector2i& p) const {
   bool upLeft = this->isPixelSolid(p.x, p.y);
   bool upRight = this->isPixelSolid(p.x + 1, p.y);
   bool downRight = this->isPixelSolid(p.x + 1, p.y + 1);
   bool downLeft = this->isPixelSolid(p.x, p.y + 1);
 
-  return (upLeft | upRight << 1 | downRight << 3 | downLeft << 2);
+  return static_cast<size_t>(upLeft | upRight << 1 | downRight << 3 | downLeft << 2);
 }
 
 bool ContourBuilder::isPixelSolid(int x, int y) const {
@@ -127,7 +127,8 @@ bool ContourBuilder::isPixelSolid(int x, int y) const {
     return false;
   }
 
-  return (_image->getPixel(x + _bound.left, y + _bound.top).a > alphaThreshold);
+  return _image->getPixel(static_cast<unsigned>(x + _bound.left), static_cast<unsigned>(y + _bound.top)).a >
+         alphaThreshold;
 }
 
 } /* namespace Detail */

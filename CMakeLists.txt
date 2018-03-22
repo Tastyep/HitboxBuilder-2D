@@ -27,8 +27,9 @@ message(STATUS "Building ${BUILD_TYPE} ${PROJECT_NAME}\n------------------------
 include(ResolveSFML)
 
 # Set compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
+include(CompilerFlags)
 
+# Source files.
 include(Sources)
 
 include_directories (${PROJECT_SOURCE_DIR}/${INCLUDE_DIR})

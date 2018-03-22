@@ -45,7 +45,7 @@ class ContourBuilder {
   std::vector<sf::Vector2i> walkPerimeter(const sf::Vector2i& start) const;
   void step(std::vector<sf::Vector2i>& contour, const sf::Vector2i& point, StepDirection& nextStep) const;
   void savePoint(std::vector<sf::Vector2i>& contour, const sf::Vector2i& p) const;
-  int pixelState(const sf::Vector2i& p) const;
+  size_t pixelState(const sf::Vector2i& p) const;
   bool isPixelSolid(int x, int y) const;
   bool isPixelSolid(const sf::Vector2i& p) const {
     return this->isPixelSolid(p.x, p.y);

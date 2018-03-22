@@ -14,8 +14,8 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   const size_t maxShortAngle = 90 - (80 * accuracy) / 100;
   const size_t maxAngle = 60 - (35 * accuracy) / 100;
 
-  auto start = 0;
-  auto inter = 0;
+  size_t start = 0;
+  size_t inter = 0;
   sf::Vector2i baseVec;
   sf::Vector2i longVec;
   sf::Vector2i shortVec;
@@ -90,7 +90,7 @@ float PolygonBuilder::computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v
   const auto norme =
     std::sqrt(static_cast<float>(v1.x * v1.x + v1.y * v1.y)) * std::sqrt(static_cast<float>(v2.x * v2.x + v2.y * v2.y));
 
-  return std::acos(dotProduct / norme) * (180.f / M_PI);
+  return std::acos(dotProduct / norme) * static_cast<float>(180.f / M_PI);
 }
 
 } /* namespace Detail */

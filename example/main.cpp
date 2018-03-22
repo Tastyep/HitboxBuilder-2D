@@ -36,7 +36,7 @@ class Window {
           _window.clear(sf::Color(0, 0, 0));
         }
       }
-      _window.draw(_sprites[_spriteIdx]);
+      _window.draw(_sprites[static_cast<size_t>(_spriteIdx)]);
       for (const auto& v : tVertices) {
         _window.draw(v);
       }
@@ -61,13 +61,14 @@ class Window {
       const auto textureSize = texture.getSize();
       _textures.push_back(std::move(texture));
 
-      sf::Sprite sprite(_textures.back(), sf::IntRect(0, 0, textureSize.x, textureSize.y));
+      sf::Sprite sprite(_textures.back(),
+                        sf::IntRect(0, 0, static_cast<int>(textureSize.x), static_cast<int>(textureSize.y)));
       _sprites.push_back(std::move(sprite));
     }
   }
 
   std::vector<sf::VertexArray> buildPolygon() {
-    _hitboxManager.load(_spriteIdx, _sprites[_spriteIdx], _accuracy);
+    _hitboxManager.load(_spriteIdx, _sprites[static_cast<size_t>(_spriteIdx)], static_cast<size_t>(_accuracy));
     auto polygons = _hitboxManager.get(_spriteIdx).body();
     std::vector<sf::VertexArray> ppVertices;
 
