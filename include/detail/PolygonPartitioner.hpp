@@ -9,16 +9,15 @@
 
 #include "Triangulator.hpp"
 
-namespace HitboxBuilder {
+namespace Hitbox {
 namespace Detail {
 
 class PolygonPartitioner {
  private:
-  using Triangle = std::vector<sf::Vector2f>;
-  using Polygon = std::vector<sf::Vector2f>;
+  using Triangle = Polygon;
 
  public:
-  std::vector<std::vector<sf::Vector2f>> make(std::vector<sf::Vector2f> polygon) const;
+  std::vector<Polygon> make(Polygon polygon) const;
 
  private:
   std::vector<Polygon> make(std::vector<Triangle> triangles) const;
@@ -36,6 +35,6 @@ class PolygonPartitioner {
 };
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */
 
 #endif

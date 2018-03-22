@@ -2,10 +2,10 @@
 
 #include <tuple>
 
-namespace HitboxBuilder {
+namespace Hitbox {
 namespace Detail {
 
-std::vector<std::vector<sf::Vector2f>> PolygonPartitioner::make(std::vector<sf::Vector2f> polygon) const {
+std::vector<Polygon> PolygonPartitioner::make(Polygon polygon) const {
   if (this->isPolygonConvex(polygon)) {
     return { polygon };
   }
@@ -16,7 +16,7 @@ std::vector<std::vector<sf::Vector2f>> PolygonPartitioner::make(std::vector<sf::
   return polygons;
 }
 
-std::vector<PolygonPartitioner::Polygon> PolygonPartitioner::make(std::vector<Triangle> triangles) const {
+std::vector<Polygon> PolygonPartitioner::make(std::vector<Triangle> triangles) const {
   for (auto polygonA = triangles.begin(); polygonA != triangles.end(); ++polygonA) {
     _polygonASize = polygonA->size();
 
@@ -103,4 +103,4 @@ bool PolygonPartitioner::isPolygonConvex(const Polygon& polygon) const {
 }
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */

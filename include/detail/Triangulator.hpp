@@ -7,18 +7,22 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace HitboxBuilder {
+#include "Types.hpp"
+
+namespace Hitbox {
 namespace Detail {
 
 class Triangulator {
  private:
-  using Triangle = std::vector<sf::Vector2f>;
+  using Triangle = Polygon;
+  using Point = sf::Vector2i;
 
+ private:
   struct Vertex {
-    Vertex(sf::Vector2f&& p)
-      : p(std::forward<sf::Vector2f>(p)) {}
+    Vertex(Point&& p)
+      : p(std::forward<Point>(p)) {}
 
-    sf::Vector2f p;
+    Point p;
     Vertex* prev;
     Vertex* next;
     bool isActive{ true };
@@ -28,13 +32,13 @@ class Triangulator {
   };
 
  public:
-  std::vector<std::vector<sf::Vector2f>> convert(std::vector<sf::Vector2f> polygon) const;
+  std::vector<Polygon> convert(Polygon polygon) const;
 
  public:
-  bool isAngleReflex(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c) const {
+  bool isAngleReflex(const Point& a, const Point& b, const Point& c) const {
     return !this->isAngleConvex(a, b, c);
   }
-  bool isAngleConvex(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c) const {
+  bool isAngleConvex(const Point& a, const Point& b, const Point& c) const {
     return (c.y - a.y) * (b.x - a.x) - (c.x - a.x) * (b.y - a.y) < 0;
   }
 
@@ -42,18 +46,16 @@ class Triangulator {
   void initVertices(std::vector<Vertex>& vertices) const;
   void updateVertex(const std::vector<Vertex>& vertices, Vertex& vertex) const;
   std::pair<bool, Triangle> nextEar(std::vector<Vertex>& polygon, size_t nbVertices, size_t verticeIndex) const;
-  bool isPointContained(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c,
-                        const sf::Vector2f& p) const;
-  sf::Vector2f normalize(const sf::Vector2f& p) const;
+  bool isPointContained(const Point& a, const Point& b, const Point& c, const Point& p) const;
+  sf::Vector2f normalize(const Point& p) const;
 
  private:
-  bool isPointVertice(const sf::Vector2f& a, const sf::Vector2f& b, const sf::Vector2f& c,
-                      const sf::Vector2f& point) const {
+  bool isPointVertice(const Point& a, const Point& b, const Point& c, const Point& point) const {
     return (point == a || point == b || point == c);
   }
 };
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */
 
 #endif

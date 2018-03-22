@@ -5,24 +5,24 @@
 #include <cstddef>
 #include <iostream>
 
-namespace HitboxBuilder {
+namespace Hitbox {
 namespace Detail {
 
-std::vector<sf::Vector2f> PolygonBuilder::make(const std::vector<sf::Vector2i>& contour, size_t accuracy) const {
-  std::vector<sf::Vector2f> polygon;
+Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
+  Polygon polygon;
 
   const size_t maxShortAngle = 90 - (80 * accuracy) / 100;
   const size_t maxAngle = 60 - (35 * accuracy) / 100;
 
   auto start = 0;
   auto inter = 0;
-  sf::Vector2f baseVec;
-  sf::Vector2f longVec;
-  sf::Vector2f shortVec;
+  sf::Vector2i baseVec;
+  sf::Vector2i longVec;
+  sf::Vector2i shortVec;
   float interAngle = 0;
 
   // Join lines
-  polygon.push_back(static_cast<sf::Vector2f>(contour.front()));
+  polygon.push_back(contour.front());
   for (size_t i = 0; i < contour.size(); ++i) {
     if (i - start < kMinLength) {
       continue;
@@ -30,14 +30,14 @@ std::vector<sf::Vector2f> PolygonBuilder::make(const std::vector<sf::Vector2i>& 
     const auto& p = contour[i];
 
     if (i - start == kMinLength) {
-      baseVec = static_cast<sf::Vector2f>(p - contour[start]);
+      baseVec = p - contour[start];
       inter = 0;
       interAngle = 0;
       continue;
     }
 
-    shortVec = static_cast<sf::Vector2f>(p - contour[i - kShortVecLength]);
-    longVec = static_cast<sf::Vector2f>(p - contour[start]);
+    shortVec = p - contour[i - kShortVecLength];
+    longVec = p - contour[start];
     const auto angle = this->computeAngle(baseVec, longVec);
     const auto shortAngle = this->computeAngle(baseVec, shortVec);
     if (angle == 0) {
@@ -58,25 +58,25 @@ std::vector<sf::Vector2f> PolygonBuilder::make(const std::vector<sf::Vector2i>& 
     }
 
     if (angle >= maxAngle || shortAngle >= maxShortAngle) {
-      polygon.push_back(static_cast<sf::Vector2f>(contour[inter]));
+      polygon.push_back(contour[inter]);
       start = inter;
       i = start;
     }
   }
 
   if (inter != 0) {
-    polygon.push_back(static_cast<sf::Vector2f>(contour[inter]));
+    polygon.push_back(contour[inter]);
   }
 
   return polygon;
 }
 
-size_t PolygonBuilder::findIntersection(const std::vector<sf::Vector2i>& contour, const sf::Vector2f& baseVec, size_t a,
+size_t PolygonBuilder::findIntersection(const Contour& contour, const sf::Vector2i& baseVec, size_t a,
                                         float angle) const {
   size_t b = a - kShortVecLength;
 
   for (float maxAngle = angle; b < a; ++b) {
-    angle = this->computeAngle(baseVec, static_cast<sf::Vector2f>(contour[a] - contour[b + 1]));
+    angle = this->computeAngle(baseVec, contour[a] - contour[b + 1]);
     if (angle <= maxAngle) {
       return b;
     }
@@ -85,15 +85,13 @@ size_t PolygonBuilder::findIntersection(const std::vector<sf::Vector2i>& contour
   return b;
 }
 
-float PolygonBuilder::computeAngle(const sf::Vector2f& v1, const sf::Vector2f& v2) const {
-  float dotProduct;
-  float norme;
-
-  dotProduct = v1.x * v2.x + v1.y * v2.y;
-  norme = std::sqrt(v1.x * v1.x + v1.y * v1.y) * std::sqrt(v2.x * v2.x + v2.y * v2.y);
+float PolygonBuilder::computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v2) const {
+  const auto dotProduct = static_cast<float>(v1.x * v2.x + v1.y * v2.y);
+  const auto norme =
+    std::sqrt(static_cast<float>(v1.x * v1.x + v1.y * v1.y)) * std::sqrt(static_cast<float>(v2.x * v2.x + v2.y * v2.y));
 
   return std::acos(dotProduct / norme) * (180.f / M_PI);
 }
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */

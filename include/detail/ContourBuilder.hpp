@@ -10,7 +10,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-namespace HitboxBuilder {
+namespace Hitbox {
 namespace Detail {
 
 class ContourBuilder {
@@ -57,6 +57,6 @@ class ContourBuilder {
 };
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */
 
 #endif

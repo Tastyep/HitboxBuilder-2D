@@ -9,13 +9,12 @@
 #include "detail/PolygonBuilder.hpp"
 #include "detail/PolygonPartitioner.hpp"
 
-namespace HitboxBuilder {
+#include "Types.hpp"
+
+namespace Hitbox {
 
 template <typename Identifier>
-class HitboxManager {
- private:
-  using Polygon = std::vector<sf::Vector2f>;
-
+class Manager {
  public:
   void load(const Identifier& id, const sf::Sprite& sprite, size_t accuracy) {
     auto contour = _contourBuilder.make(sprite);
@@ -23,28 +22,16 @@ class HitboxManager {
     auto boundingBox = _boundingBoxBuilder.make(contour);
     auto polygons = _polygonPartitioner.make(std::move(polygon));
 
-    _hitboxes[id] = { std::move(polygons), std::move(boundingBox) };
+    auto hitbox = Hitbox(std::move(polygons), std::move(boundingBox));
+    _hitboxes[id] = std::move(hitbox);
   }
 
-  const std::vector<std::vector<sf::Vector2f>>& skeleton(const Identifier& id) const {
+  const Hitbox& get(const Identifier& id) const {
     auto found = _hitboxes.find(id);
     assert(found != _hitboxes.end());
 
-    return found->second.skeleton;
+    return found->second;
   }
-
-  const sf::IntRect& boundingBox(const Identifier& id) const {
-    auto found = _hitboxes.find(id);
-    assert(found != _hitboxes.end());
-
-    return found->second.boundingBox;
-  }
-
- private:
-  struct Hitbox {
-    std::vector<Polygon> skeleton;
-    sf::IntRect boundingBox;
-  };
 
  private:
   Detail::ContourBuilder _contourBuilder;
@@ -56,6 +43,6 @@ class HitboxManager {
   std::unordered_map<Identifier, Hitbox> _hitboxes;
 };
 
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */
 
 #endif

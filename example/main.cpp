@@ -23,7 +23,7 @@ class Window {
     this->loadImages();
 
     auto tVertices = this->buildPolygon();
-
+    auto bound = this->buildBoundingBox();
     _window.clear(sf::Color(0, 0, 0));
     while (_window.isOpen()) {
       while (_window.pollEvent(event)) {
@@ -32,6 +32,7 @@ class Window {
         }
         if (this->handleEvents(event)) {
           tVertices = this->buildPolygon();
+          bound = this->buildBoundingBox();
           _window.clear(sf::Color(0, 0, 0));
         }
       }
@@ -39,6 +40,7 @@ class Window {
       for (const auto& v : tVertices) {
         _window.draw(v);
       }
+      _window.draw(bound);
       _window.display();
     }
   }
@@ -66,7 +68,7 @@ class Window {
 
   std::vector<sf::VertexArray> buildPolygon() {
     _hitboxManager.load(_spriteIdx, _sprites[_spriteIdx], _accuracy);
-    auto polygons = _hitboxManager.skeleton(_spriteIdx);
+    auto polygons = _hitboxManager.get(_spriteIdx).body();
     std::vector<sf::VertexArray> ppVertices;
 
     for (size_t i = 0; i < polygons.size(); ++i) {
@@ -86,14 +88,13 @@ class Window {
   }
 
   sf::VertexArray buildBoundingBox() const {
-    auto boundingBox = _hitboxManager.boundingBox(_spriteIdx);
+    const auto boundingBox = _hitboxManager.get(_spriteIdx).bound();
     sf::VertexArray bound(sf::PrimitiveType::LineStrip, 0);
 
-    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left, boundingBox.top)));
-    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left + boundingBox.width, boundingBox.top)));
-    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left + boundingBox.width, boundingBox.top + boundingBox.height)));
-    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left, boundingBox.top + boundingBox.height)));
-    bound.append(sf::Vertex(sf::Vector2f(boundingBox.left, boundingBox.top)));
+    for (const auto& p : boundingBox) {
+      bound.append(sf::Vertex(static_cast<sf::Vector2f>(p)));
+    }
+    bound.append(sf::Vertex(static_cast<sf::Vector2f>(boundingBox.front())));
 
     return bound;
   }
@@ -123,7 +124,7 @@ class Window {
 
  private:
   sf::RenderWindow _window;
-  HitboxBuilder::HitboxManager<int> _hitboxManager;
+  Hitbox::Manager<int> _hitboxManager;
   std::vector<sf::Texture> _textures;
   std::vector<sf::Sprite> _sprites;
 

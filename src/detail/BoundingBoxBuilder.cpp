@@ -2,10 +2,10 @@
 
 #include <algorithm>
 
-namespace HitboxBuilder {
+namespace Hitbox {
 namespace Detail {
 
-sf::IntRect BoundingBoxBuilder::make(const std::vector<sf::Vector2i>& polygon) const {
+Polygon BoundingBoxBuilder::make(const Polygon& polygon) const {
   sf::Vector2i tl = polygon.front(), br = polygon.front();
 
   for (const auto& v : polygon) {
@@ -15,8 +15,13 @@ sf::IntRect BoundingBoxBuilder::make(const std::vector<sf::Vector2i>& polygon) c
     br.y = std::max(br.y, v.y);
   }
 
-  return sf::IntRect{ tl.x, tl.y, br.x - tl.x, br.y - tl.y };
+  return Polygon{
+    sf::Vector2i{ tl.x, tl.y },
+    sf::Vector2i{ tl.x, br.y },
+    sf::Vector2i{ br.x, br.y },
+    sf::Vector2i{ br.x, tl.y },
+  };
 }
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */

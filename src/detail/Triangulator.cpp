@@ -3,10 +3,10 @@
 #include <cmath>
 #include <tuple>
 
-namespace HitboxBuilder {
+namespace Hitbox {
 namespace Detail {
 
-std::vector<std::vector<sf::Vector2f>> Triangulator::convert(std::vector<sf::Vector2f> polygon) const {
+std::vector<Polygon> Triangulator::convert(Polygon polygon) const {
   std::vector<Vertex> vertices;
   std::vector<Triangle> triangles;
   Triangle ear;
@@ -105,21 +105,18 @@ Triangulator::nextEar(std::vector<Vertex>& polygon, size_t nbVertices, size_t ve
   return { true, std::move(triangle) };
 }
 
-bool Triangulator::isPointContained(const sf::Vector2f& a,
-                                    const sf::Vector2f& b,
-                                    const sf::Vector2f& c,
-                                    const sf::Vector2f& p) const {
+bool Triangulator::isPointContained(const Point& a, const Point& b, const Point& c, const Point& p) const {
   return !this->isAngleConvex(a, p, b) && //
          !this->isAngleConvex(b, p, c) && //
          !this->isAngleConvex(c, p, a);
 }
 
-sf::Vector2f Triangulator::normalize(const sf::Vector2f& p) const {
-  float n = std::sqrt(p.x * p.x + p.y * p.y);
+sf::Vector2f Triangulator::normalize(const Point& p) const {
+  float n = std::sqrt(static_cast<float>(p.x * p.x + p.y * p.y));
 
   return (n == 0) ? sf::Vector2f{ 0, 0 } //
                   : (static_cast<sf::Vector2f>(p) / n);
 }
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */

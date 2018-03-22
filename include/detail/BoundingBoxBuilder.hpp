@@ -3,18 +3,19 @@
 
 #include <vector>
 
-#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace HitboxBuilder {
+#include "Types.hpp"
+
+namespace Hitbox {
 namespace Detail {
 
 class BoundingBoxBuilder {
  public:
-  sf::IntRect make(const std::vector<sf::Vector2i>& polygon) const;
+  Polygon make(const Polygon& polygon) const;
 };
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} /* namespace Hitbox */
 
 #endif
