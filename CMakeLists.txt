@@ -9,6 +9,7 @@ set(MODULE_DIR cmake)
 set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 set(LIB_DIR lib)
+set(IMPLEMENTATION_DIR detail)
 set(TESTBED_DIR example)
 set(TESTER_NAME "${PROJECT_NAME}-tester")
 
@@ -28,8 +29,7 @@ include(ResolveSFML)
 # Set compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra")
 
-file(GLOB_RECURSE LIB_SOURCE_FILES "${PROJECT_SOURCE_DIR}/${SOURCE_DIR}/*pp")
-file(GLOB_RECURSE TESTBED_SOURCE_FILES "${PROJECT_SOURCE_DIR}/${TESTBED_DIR}/*pp")
+include(Sources)
 
 include_directories (${PROJECT_SOURCE_DIR}/${INCLUDE_DIR})
 
@@ -40,3 +40,6 @@ if(HITBOX_BUILDER_BUILD_TESTBED)
   add_executable(${TESTER_NAME} ${TESTBED_SOURCE_FILES})
   target_link_libraries (${TESTER_NAME} ${EXTERNAL_LIBRARIES} ${PROJECT_NAME})
 endif()
+
+install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_DIR})
+install(FILES ${LIB_EXPOSED_HEADER_FILES} DESTINATION ${INCLUDE_DIR})
