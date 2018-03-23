@@ -68,7 +68,7 @@ class Window {
   }
 
   std::vector<sf::VertexArray> buildPolygon() {
-    _hitboxManager.load(_spriteIdx, _sprites[static_cast<size_t>(_spriteIdx)], static_cast<size_t>(_accuracy));
+    _hitboxManager.load(_spriteIdx, _sprites[static_cast<size_t>(_spriteIdx)], static_cast<size_t>(_accuracy), false);
     auto polygons = _hitboxManager.get(_spriteIdx).body();
     std::vector<sf::VertexArray> ppVertices;
 
