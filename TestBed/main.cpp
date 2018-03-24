@@ -8,6 +8,9 @@
 #include <SFML/Window/Event.hpp>
 
 #include "Manager.hpp"
+#include "TestBed/FileSystem.hpp"
+
+namespace TestBed {
 
 class Window {
  public:
@@ -46,15 +49,14 @@ class Window {
   }
 
   void loadImages() {
-    const std::vector<std::string> files{ "circle", "marioBig", "dog", "Z", "A", "bat", "human", "kraken" };
-    _textures.reserve(files.size());
+    const auto images = readImages("../TestBed/assets/", ".png");
+    _textures.reserve(images.size());
 
-    for (const auto& file : files) {
+    for (const auto& image : images) {
       sf::Texture texture;
 
-      const auto path = "../example/assets/" + file + ".png";
-      if (!texture.loadFromFile(path)) {
-        std::cerr << "Could not find the texture '" << path << "'" << std::endl;
+      if (!texture.loadFromFile(image)) {
+        std::cerr << "Could not find the texture '" << image << "'" << std::endl;
         this->close();
         return;
       }
@@ -137,8 +139,10 @@ class Window {
   int _spriteIdx{ 0 };
 };
 
+} /* namespace TestBed */
+
 int main() {
-  Window window;
+  TestBed::Window window;
 
   window.run();
   return 0;

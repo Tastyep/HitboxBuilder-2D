@@ -10,7 +10,7 @@ set(SOURCE_DIR src)
 set(INCLUDE_DIR include)
 set(LIB_DIR lib)
 set(IMPLEMENTATION_DIR detail)
-set(TESTBED_DIR example)
+set(TESTBED_DIR TestBed)
 set(TESTER_NAME "${PROJECT_NAME}-tester")
 
 set(CLANG_TIDY_CONFIG_SOURCE "${PROJECT_SOURCE_DIR}/.clang-tidy")
@@ -35,6 +35,7 @@ include(CompilerFlags)
 # Source files.
 include(Sources)
 
+include_directories (${PROJECT_SOURCE_DIR})
 include_directories (${PROJECT_SOURCE_DIR}/${INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} STATIC ${LIB_SOURCE_FILES})
