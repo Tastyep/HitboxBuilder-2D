@@ -9,7 +9,7 @@
 
 #include "Triangulator.hpp"
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 class PolygonPartitioner {
@@ -35,6 +35,6 @@ class PolygonPartitioner {
 };
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */
 
 #endif

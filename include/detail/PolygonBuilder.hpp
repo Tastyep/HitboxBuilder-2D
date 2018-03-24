@@ -8,7 +8,7 @@
 
 #include "Types.hpp"
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 class PolygonBuilder {
@@ -29,6 +29,6 @@ class PolygonBuilder {
 };
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */
 
 #endif

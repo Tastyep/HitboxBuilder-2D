@@ -2,7 +2,7 @@
 
 #include <tuple>
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 std::vector<Polygon> PolygonPartitioner::make(Polygon polygon) const {
@@ -104,4 +104,4 @@ bool PolygonPartitioner::isPolygonConvex(const Polygon& polygon) const {
 }
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */

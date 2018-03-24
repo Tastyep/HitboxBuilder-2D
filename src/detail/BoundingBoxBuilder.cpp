@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 Polygon BoundingBoxBuilder::make(const Polygon& polygon) const {
@@ -24,4 +24,4 @@ Polygon BoundingBoxBuilder::make(const Polygon& polygon) const {
 }
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */

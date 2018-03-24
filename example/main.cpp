@@ -125,7 +125,7 @@ class Window {
 
  private:
   sf::RenderWindow _window;
-  Hitbox::Manager<int> _hitboxManager;
+  HitboxBuilder::Manager<int> _hitboxManager;
   std::vector<sf::Texture> _textures;
   std::vector<sf::Sprite> _sprites;
 

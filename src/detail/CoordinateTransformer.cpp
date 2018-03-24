@@ -1,6 +1,6 @@
 #include "detail/CoordinateTransformer.hpp"
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 void toCarthesian(const sf::Sprite& sprite, Polygon& polygon) {
@@ -18,4 +18,4 @@ void toCarthesian(const sf::Sprite& sprite, std::vector<Polygon>& polygons) {
 }
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */

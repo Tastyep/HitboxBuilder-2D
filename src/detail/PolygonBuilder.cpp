@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <iostream>
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
@@ -94,4 +94,4 @@ float PolygonBuilder::computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v
 }
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */

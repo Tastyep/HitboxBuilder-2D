@@ -7,7 +7,7 @@
 
 #include "Types.hpp"
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 class BoundingBoxBuilder {
@@ -16,6 +16,6 @@ class BoundingBoxBuilder {
 };
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */
 
 #endif

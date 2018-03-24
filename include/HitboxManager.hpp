@@ -12,7 +12,7 @@
 
 #include "Types.hpp"
 
-namespace Hitbox {
+namespace HitboxBuilder {
 
 template <typename Identifier>
 class Manager {
@@ -47,6 +47,6 @@ class Manager {
   std::unordered_map<Identifier, Hitbox> _hitboxes;
 };
 
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */
 
 #endif

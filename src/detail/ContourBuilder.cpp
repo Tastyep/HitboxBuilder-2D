@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 std::vector<sf::Vector2i> ContourBuilder::make(const sf::Sprite& sprite) const {
@@ -132,4 +132,4 @@ bool ContourBuilder::isPixelSolid(int x, int y) const {
 }
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */

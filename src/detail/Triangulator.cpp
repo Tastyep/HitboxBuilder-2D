@@ -3,7 +3,7 @@
 #include <cmath>
 #include <tuple>
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 std::vector<Polygon> Triangulator::convert(Polygon polygon) const {
@@ -119,4 +119,4 @@ sf::Vector2f Triangulator::normalize(const Point& p) const {
 }
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */

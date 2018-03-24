@@ -6,7 +6,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace Hitbox {
+namespace HitboxBuilder {
 
 using Polygon = std::vector<sf::Vector2i>;
 
@@ -29,6 +29,6 @@ class Hitbox {
   Polygon _bound;
 };
 
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */
 
 #endif

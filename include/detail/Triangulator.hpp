@@ -9,7 +9,7 @@
 
 #include "Types.hpp"
 
-namespace Hitbox {
+namespace HitboxBuilder {
 namespace Detail {
 
 class Triangulator {
@@ -56,6 +56,6 @@ class Triangulator {
 };
 
 } /* namespace Detail */
-} /* namespace Hitbox */
+} /* namespace HitboxBuilder */
 
 #endif
