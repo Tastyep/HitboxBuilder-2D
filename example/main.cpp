@@ -7,7 +7,7 @@
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "HitboxManager.hpp"
+#include "Manager.hpp"
 
 class Window {
  public:
@@ -68,8 +68,11 @@ class Window {
   }
 
   std::vector<sf::VertexArray> buildPolygon() {
-    _hitboxManager.load(_spriteIdx, _sprites[static_cast<size_t>(_spriteIdx)], static_cast<size_t>(_accuracy), false);
-    auto polygons = _hitboxManager.get(_spriteIdx).body();
+    _hitboxManager.load(static_cast<size_t>(_spriteIdx),
+                        _sprites[static_cast<size_t>(_spriteIdx)],
+                        static_cast<size_t>(_accuracy),
+                        false);
+    auto polygons = _hitboxManager.get(static_cast<size_t>(_spriteIdx)).body();
     std::vector<sf::VertexArray> ppVertices;
 
     for (size_t i = 0; i < polygons.size(); ++i) {
@@ -89,7 +92,7 @@ class Window {
   }
 
   sf::VertexArray buildBoundingBox() const {
-    const auto boundingBox = _hitboxManager.get(_spriteIdx).bound();
+    const auto boundingBox = _hitboxManager.get(static_cast<size_t>(_spriteIdx)).bound();
     sf::VertexArray bound(sf::PrimitiveType::LineStrip, 0);
 
     for (const auto& p : boundingBox) {
@@ -125,7 +128,7 @@ class Window {
 
  private:
   sf::RenderWindow _window;
-  HitboxBuilder::Manager<int> _hitboxManager;
+  HitboxBuilder::Manager _hitboxManager;
   std::vector<sf::Texture> _textures;
   std::vector<sf::Sprite> _sprites;
 
