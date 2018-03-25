@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include "Manager.hpp"
 
@@ -35,6 +36,7 @@ class Example {
  private:
   size_t _accuracy{ 0 };
   size_t _spriteIdx{ 0 };
+  sf::Vector2i _center;
 };
 
 } /* namespace TestBed */
