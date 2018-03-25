@@ -16,8 +16,7 @@ class PolygonBuilder {
   using Contour = std::vector<sf::Vector2i>;
 
  private:
-  const size_t kMinLength = 4;
-  const size_t kShortVecLength = 4;
+  const size_t kMinVecLength = 6;
   const sf::Vector2i kZeroVector{ 0, 0 };
 
  public:

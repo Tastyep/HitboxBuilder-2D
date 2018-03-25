@@ -11,8 +11,8 @@ namespace Detail {
 Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   Polygon polygon;
 
-  const size_t maxShortAngle = 60 - (50 * accuracy) / 100;
-  const size_t maxAngle = 60 - (35 * accuracy) / 100;
+  const size_t maxShortAngle = 60 - (40 * accuracy) / 100;
+  const size_t maxAngle = 60 - (60 * accuracy) / 100;
 
   size_t start = 0;
   size_t inter = 0;
@@ -25,7 +25,7 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   // Join lines
   polygon.push_back(contour.front());
   for (size_t i = 0; i < contour.size(); ++i) {
-    if (i - start < kMinLength) {
+    if (i - start < kMinVecLength) {
       continue;
     }
 
@@ -38,8 +38,8 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
       continue;
     }
 
-    shortVec = contour[(i + kShortVecLength) % contour.size()] - p;
-    medVec = p - contour[i - kShortVecLength];
+    shortVec = contour[(i + kMinVecLength) % contour.size()] - p;
+    medVec = p - contour[i - kMinVecLength];
     longVec = p - contour[start];
     const auto angle = this->computeAngle(baseVec, longVec);
     const auto medAngle = this->computeAngle(baseVec, medVec);
@@ -71,7 +71,7 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
 
 size_t PolygonBuilder::findIntersection(const Contour& contour, const sf::Vector2i& baseVec, size_t a,
                                         float angle) const {
-  size_t b = a - kShortVecLength;
+  size_t b = a - kMinVecLength;
 
   for (float maxAngle = angle; b < a; ++b) {
     angle = this->computeAngle(baseVec, contour[a] - contour[b + 1]);
