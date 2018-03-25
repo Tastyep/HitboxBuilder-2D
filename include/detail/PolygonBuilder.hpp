@@ -17,8 +17,8 @@ class PolygonBuilder {
 
  private:
   const size_t kMinLength = 4;
-  const size_t kMaxUpdateAngle = 20;
   const size_t kShortVecLength = 4;
+  const sf::Vector2i kZeroVector{ 0, 0 };
 
  public:
   Polygon make(const Contour& contour, size_t accuracy) const;

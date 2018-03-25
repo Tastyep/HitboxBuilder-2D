@@ -11,15 +11,15 @@ namespace Detail {
 Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   Polygon polygon;
 
-  const size_t maxShortAngle = 90 - (80 * accuracy) / 100;
+  const size_t maxShortAngle = 60 - (50 * accuracy) / 100;
   const size_t maxAngle = 60 - (35 * accuracy) / 100;
 
   size_t start = 0;
   size_t inter = 0;
+  bool baseVecInit = false;
   sf::Vector2i baseVec;
   sf::Vector2i longVec;
   sf::Vector2i shortVec;
-  float interAngle = 0;
 
   // Join lines
   polygon.push_back(contour.front());
@@ -27,12 +27,13 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
     if (i - start < kMinLength) {
       continue;
     }
-    const auto& p = contour[i];
 
-    if (i - start == kMinLength) {
+    const auto& p = contour[i];
+    if (baseVecInit == false) {
       baseVec = p - contour[start];
-      inter = 0;
-      interAngle = 0;
+      if (baseVec != kZeroVector) {
+        baseVecInit = true;
+      }
       continue;
     }
 
@@ -40,27 +41,21 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
     longVec = p - contour[start];
     const auto angle = this->computeAngle(baseVec, longVec);
     const auto shortAngle = this->computeAngle(baseVec, shortVec);
-    if (angle == 0) {
-      continue;
-    }
-    // Allow a margin for detecting a change of direction for shapes like circles.
-    if ((inter == 0 && angle > kMaxUpdateAngle) || shortAngle >= maxShortAngle) {
+
+    if (angle > maxAngle || shortAngle >= maxShortAngle) {
       if (shortAngle >= maxShortAngle) {
         inter = this->findIntersection(contour, baseVec, i, shortAngle);
       } else {
         inter = i;
       }
-      interAngle = angle;
-    } else if (angle < interAngle) {
-      inter = i;
-      interAngle = angle;
-      continue;
     }
 
-    if (angle >= maxAngle || shortAngle >= maxShortAngle) {
+    if (inter != 0) {
       polygon.push_back(contour[inter]);
+      baseVecInit = false;
       start = inter;
-      i = start;
+      i = inter;
+      inter = 0;
     }
   }
 

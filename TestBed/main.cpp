@@ -108,9 +108,9 @@ class Window {
   bool handleEvents(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed) {
       if (event.key.code == sf::Keyboard::Left) {
-        _accuracy = std::max(0, _accuracy - 5);
+        _accuracy = std::max(0, _accuracy - 10);
       } else if (event.key.code == sf::Keyboard::Right) {
-        _accuracy = std::min(100, _accuracy + 5);
+        _accuracy = std::min(100, _accuracy + 10);
       } else if (event.key.code == sf::Keyboard::Up) {
         _spriteIdx = std::min(static_cast<int>(_sprites.size()) - 1, _spriteIdx + 1);
       } else if (event.key.code == sf::Keyboard::Down) {
