@@ -19,6 +19,7 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   bool baseVecInit = false;
   sf::Vector2i baseVec;
   sf::Vector2i longVec;
+  sf::Vector2i medVec;
   sf::Vector2i shortVec;
 
   // Join lines
@@ -37,14 +38,16 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
       continue;
     }
 
-    shortVec = p - contour[i - kShortVecLength];
+    shortVec = contour[(i + kShortVecLength) % contour.size()] - p;
+    medVec = p - contour[i - kShortVecLength];
     longVec = p - contour[start];
     const auto angle = this->computeAngle(baseVec, longVec);
-    const auto shortAngle = this->computeAngle(baseVec, shortVec);
+    const auto medAngle = this->computeAngle(baseVec, medVec);
+    const auto shortAngle = this->computeAngle(medVec, shortVec);
 
-    if (angle > maxAngle || shortAngle >= maxShortAngle) {
-      if (shortAngle >= maxShortAngle) {
-        inter = this->findIntersection(contour, baseVec, i, shortAngle);
+    if (angle > maxAngle || medAngle >= maxShortAngle || shortAngle >= maxShortAngle) {
+      if (medAngle >= maxShortAngle) {
+        inter = this->findIntersection(contour, baseVec, i, medAngle);
       } else {
         inter = i;
       }
