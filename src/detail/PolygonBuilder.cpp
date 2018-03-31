@@ -68,7 +68,6 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   if (inter != 0) {
     polygon.push_back(contour[inter]);
   }
-
   return polygon;
 }
 
@@ -110,11 +109,11 @@ size_t PolygonBuilder::findShortIntersection(const Contour& contour, size_t i, f
 
     angle = this->computeAngle(prevDir, nextDir);
     if (angle < maxAngle) {
-      return i;
+      return i % contour.size();
     }
     maxAngle = angle;
   }
-  return i;
+  return i % contour.size();
 }
 
 size_t PolygonBuilder::findMedIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseDir,
