@@ -8,55 +8,56 @@
 namespace HitboxBuilder {
 namespace Detail {
 
+PolygonBuilder::PolygonBuilder() {
+  _testers.push_back([this](const Contour& contour, size_t i, const sf::Vector2i& baseDir) {
+    return this->testShortAngle(contour, i, baseDir);
+  });
+  _testers.push_back([this](const Contour& contour, size_t i, const sf::Vector2i& baseDir) {
+    return this->testMedAngle(contour, i, baseDir);
+  });
+  _testers.push_back([this](const Contour& contour, size_t i, const sf::Vector2i& baseDir) {
+    return this->testLongAngle(contour, i, baseDir);
+  });
+}
+
 Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   Polygon polygon;
 
-  const size_t maxShortAngle = 60 - (40 * accuracy) / 100;
-  const size_t maxAngle = 60 - (60 * accuracy) / 100;
+  _maxShortAngle = 90 - (60 * accuracy) / 100;
+  _maxMedAngle = 80 - (70 * accuracy) / 100;
+  _maxAngle = 45 - (40 * accuracy) / 100;
 
-  size_t start = 0;
   size_t inter = 0;
-  bool baseVecInit = false;
   sf::Vector2i baseVec;
   sf::Vector2i longVec;
   sf::Vector2i medVec;
   sf::Vector2i shortVec;
 
-  // Join lines
+  _baseVecInit = false;
+  _prevInter = 0;
+
   polygon.push_back(contour.front());
   for (size_t i = 0; i < contour.size(); ++i) {
-    if (i - start < kMinVecLength) {
+    if (i - _prevInter < kMinVecLength) {
       continue;
     }
 
-    const auto& p = contour[i];
-    if (baseVecInit == false) {
-      baseVec = p - contour[start];
+    if (i - _prevInter >= kMinBaseVecLength && _baseVecInit == false) {
+      baseVec = contour[i] - contour[_prevInter];
       if (baseVec != kZeroVector) {
-        baseVecInit = true;
+        _baseVecInit = true;
       }
       continue;
     }
 
-    shortVec = contour[(i + kMinVecLength) % contour.size()] - p;
-    medVec = p - contour[i - kMinVecLength];
-    longVec = p - contour[start];
-    const auto angle = this->computeAngle(baseVec, longVec);
-    const auto medAngle = this->computeAngle(baseVec, medVec);
-    const auto shortAngle = this->computeAngle(medVec, shortVec);
-
-    if (angle > maxAngle || medAngle >= maxShortAngle || shortAngle >= maxShortAngle) {
-      if (medAngle >= maxShortAngle) {
-        inter = this->findIntersection(contour, baseVec, i, medAngle);
-      } else {
-        inter = i;
-      }
+    for (size_t j = 0; j < _testers.size() && inter == 0; ++j) {
+      inter = _testers[j](contour, i, baseVec);
     }
 
     if (inter != 0) {
       polygon.push_back(contour[inter]);
-      baseVecInit = false;
-      start = inter;
+      _baseVecInit = false;
+      _prevInter = inter;
       i = inter;
       inter = 0;
     }
@@ -69,16 +70,44 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   return polygon;
 }
 
-size_t PolygonBuilder::findIntersection(const Contour& contour, const sf::Vector2i& baseVec, size_t a,
+size_t PolygonBuilder::testShortAngle(const Contour& contour, size_t i, const sf::Vector2i&) const {
+  const auto prevDir = contour[i] - contour[i - kMinVecLength];
+  const auto nextDir = contour[(i + kMinVecLength) % contour.size()] - contour[i];
+  const auto angle = this->computeAngle(prevDir, nextDir);
+
+  return angle >= _maxShortAngle ? i : 0;
+}
+
+size_t PolygonBuilder::testMedAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const {
+  if (_baseVecInit == false) {
+    return 0;
+  }
+  const auto currentDir = contour[i] - contour[i - kMinVecLength];
+  const auto angle = this->computeAngle(baseDir, currentDir);
+
+  return angle >= _maxMedAngle ? this->findIntersection(contour, i, baseDir, angle) : 0;
+}
+
+size_t PolygonBuilder::testLongAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const {
+  if (_baseVecInit == false) {
+    return 0;
+  }
+  const auto currentDir = contour[i] - contour[_prevInter];
+  const auto angle = this->computeAngle(baseDir, currentDir);
+
+  return angle >= _maxAngle ? i : 0;
+}
+
+size_t PolygonBuilder::findIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseDir,
                                         float angle) const {
   size_t b = a - kMinVecLength;
 
-  for (float maxAngle = angle; b < a; ++b) {
-    angle = this->computeAngle(baseVec, contour[a] - contour[b + 1]);
-    if (angle <= maxAngle) {
+  for (float _maxAngle = angle; b < a; ++b) {
+    angle = this->computeAngle(baseDir, contour[a] - contour[b + 1]);
+    if (angle <= _maxAngle) {
       return b;
     }
-    maxAngle = angle;
+    _maxAngle = angle;
   }
   return b;
 }
@@ -92,4 +121,4 @@ float PolygonBuilder::computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v
 }
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} // namespace HitboxBuilder
