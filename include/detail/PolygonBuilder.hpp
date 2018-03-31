@@ -21,18 +21,20 @@ class PolygonBuilder {
 
  private:
   const size_t kMinBaseVecLength = 15;
-  const size_t kMinVecLength = 6;
+  const size_t kMinVecLength = 8;
   const sf::Vector2i kZeroVector{ 0, 0 };
 
  public:
   Polygon make(const Contour& contour, size_t accuracy) const;
 
  private:
-  size_t findIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseVec, float angle) const;
-  float computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v2) const;
   size_t testShortAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const;
   size_t testMedAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const;
   size_t testLongAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const;
+
+  size_t findShortIntersection(const Contour& contour, size_t a, float angle) const;
+  size_t findMedIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseVec, float angle) const;
+  float computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v2) const;
 
  private:
   std::vector<std::function<size_t(const Contour&, size_t, const sf::Vector2i&)>> _testers;

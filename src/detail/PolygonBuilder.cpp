@@ -23,7 +23,9 @@ PolygonBuilder::PolygonBuilder() {
 Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   Polygon polygon;
 
-  _maxShortAngle = 90 - (60 * accuracy) / 100;
+  // The max short angle should only be 80 (and not 90) as one pixel could be detected int eh angle.
+  // This non visible pixel would reduce the size of the angle and approximate the result.
+  _maxShortAngle = 80 - (50 * accuracy) / 100;
   _maxMedAngle = 80 - (70 * accuracy) / 100;
   _maxAngle = 45 - (40 * accuracy) / 100;
 
@@ -75,7 +77,7 @@ size_t PolygonBuilder::testShortAngle(const Contour& contour, size_t i, const sf
   const auto nextDir = contour[(i + kMinVecLength) % contour.size()] - contour[i];
   const auto angle = this->computeAngle(prevDir, nextDir);
 
-  return angle >= _maxShortAngle ? i : 0;
+  return angle >= _maxShortAngle ? this->findShortIntersection(contour, i, angle) : 0;
 }
 
 size_t PolygonBuilder::testMedAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const {
@@ -85,7 +87,7 @@ size_t PolygonBuilder::testMedAngle(const Contour& contour, size_t i, const sf::
   const auto currentDir = contour[i] - contour[i - kMinVecLength];
   const auto angle = this->computeAngle(baseDir, currentDir);
 
-  return angle >= _maxMedAngle ? this->findIntersection(contour, i, baseDir, angle) : 0;
+  return angle >= _maxMedAngle ? this->findMedIntersection(contour, i, baseDir, angle) : 0;
 }
 
 size_t PolygonBuilder::testLongAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const {
@@ -98,16 +100,33 @@ size_t PolygonBuilder::testLongAngle(const Contour& contour, size_t i, const sf:
   return angle >= _maxAngle ? i : 0;
 }
 
-size_t PolygonBuilder::findIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseDir,
-                                        float angle) const {
+size_t PolygonBuilder::findShortIntersection(const Contour& contour, size_t i, float angle) const {
+  const size_t head = i + kMinVecLength;
+
+  for (float maxAngle = angle; i < head; ++i) {
+    const auto j = (i + 1) % contour.size();
+    const auto prevDir = contour[j] - contour[(j - kMinVecLength) % contour.size()];
+    const auto nextDir = contour[(j + kMinVecLength) % contour.size()] - contour[j];
+
+    angle = this->computeAngle(prevDir, nextDir);
+    if (angle < maxAngle) {
+      return i;
+    }
+    maxAngle = angle;
+  }
+  return i;
+}
+
+size_t PolygonBuilder::findMedIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseDir,
+                                           float angle) const {
   size_t b = a - kMinVecLength;
 
-  for (float _maxAngle = angle; b < a; ++b) {
+  for (float maxAngle = angle; b < a; ++b) {
     angle = this->computeAngle(baseDir, contour[a] - contour[b + 1]);
-    if (angle <= _maxAngle) {
+    if (angle < maxAngle) {
       return b;
     }
-    _maxAngle = angle;
+    maxAngle = angle;
   }
   return b;
 }
