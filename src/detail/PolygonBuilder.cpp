@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 
 namespace HitboxBuilder {
 namespace Detail {
@@ -100,20 +99,22 @@ size_t PolygonBuilder::testLongAngle(const Contour& contour, size_t i, const sf:
 }
 
 size_t PolygonBuilder::findShortIntersection(const Contour& contour, size_t i, float angle) const {
-  const size_t head = i + kMinVecLength;
+  // Avoid making segments of length < kMinVecLength.
+  // An intersection detected at i >= contour.size() would be problematic for breaking out of the main loop.
+  const size_t head = std::min(i + kMinVecLength, contour.size() - kMinVecLength - 1);
 
   for (float maxAngle = angle; i < head; ++i) {
-    const auto j = (i + 1) % contour.size();
-    const auto prevDir = contour[j] - contour[(j - kMinVecLength) % contour.size()];
-    const auto nextDir = contour[(j + kMinVecLength) % contour.size()] - contour[j];
+    const auto j = i + 1;
+    const auto prevDir = contour[j] - contour[j - kMinVecLength];
+    const auto nextDir = contour[j + kMinVecLength] - contour[j];
 
     angle = this->computeAngle(prevDir, nextDir);
     if (angle < maxAngle) {
-      return i % contour.size();
+      return i;
     }
     maxAngle = angle;
   }
-  return i % contour.size();
+  return i;
 }
 
 size_t PolygonBuilder::findMedIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseDir,

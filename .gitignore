@@ -33,3 +33,6 @@
 
 # Build directory
 build/
+
+# Test assets
+TestBed/assets/test/
