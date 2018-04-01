@@ -33,7 +33,6 @@ class PolygonBuilder {
   size_t testLongAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const;
 
   size_t findShortIntersection(const Contour& contour, size_t a, float angle) const;
-  size_t findMedIntersection(const Contour& contour, size_t a, const sf::Vector2i& baseVec, float angle) const;
   float computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v2) const;
 
  private:
