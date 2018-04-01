@@ -1,6 +1,7 @@
 #include "TestBed/Example.hpp"
 
 #include <iostream>
+#include <stdexcept>
 #include <utility>
 
 #include <SFML/Window/Event.hpp>
@@ -9,11 +10,17 @@
 
 namespace TestBed {
 
-Example::Example()
+Example::Example(const std::vector<std::string>& fonts)
   : _window(sf::VideoMode(1280, 1024), "HitboxBuilder")
   , _center(1280 / 2, 1024 / 2) {
   _window.setFramerateLimit(30);
   _window.setKeyRepeatEnabled(false);
+
+  _polygonCount.font.loadFromFile(fonts[0]);
+  _polygonCount.text.setFont(_polygonCount.font);
+  _polygonCount.text.setCharacterSize(40);
+  _polygonCount.text.setFillColor(sf::Color::White);
+  _polygonCount.text.setPosition(1.6f * _center.x, 1.8f * _center.y);
 }
 
 void Example::run(const std::vector<std::string>& images) {
@@ -23,6 +30,7 @@ void Example::run(const std::vector<std::string>& images) {
 
   auto tVertices = this->buildPolygon();
   auto bound = this->buildBoundingBox();
+  _polygonCount.text.setString(std::to_string(tVertices.size()) + " polygons");
   while (_window.isOpen()) {
     while (_window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
@@ -31,6 +39,7 @@ void Example::run(const std::vector<std::string>& images) {
       if (this->handleEvents(event)) {
         tVertices = this->buildPolygon();
         bound = this->buildBoundingBox();
+        _polygonCount.text.setString(std::to_string(tVertices.size()) + " polygons");
       }
     }
     _window.clear(sf::Color(0, 0, 0));
@@ -39,6 +48,7 @@ void Example::run(const std::vector<std::string>& images) {
       _window.draw(v);
     }
     _window.draw(bound);
+    _window.draw(_polygonCount.text);
     _window.display();
   }
 }
@@ -50,9 +60,8 @@ void Example::loadSprites(const std::vector<std::string>& images) {
     sf::Texture texture;
 
     if (!texture.loadFromFile(image)) {
-      std::cerr << "Could not find the texture '" << image << "'" << std::endl;
       this->close();
-      return;
+      throw std::runtime_error("Could not find the texture '" + image + "'");
     }
 
     _textures.push_back(std::move(texture));

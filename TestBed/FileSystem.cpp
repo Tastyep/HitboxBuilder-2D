@@ -6,7 +6,7 @@
 
 namespace TestBed {
 
-std::vector<std::string> readImages(const std::string& path, const std::string& ext) {
+std::vector<std::string> readFiles(const std::string& path, const std::string& ext) {
   DIR* dir;
   struct dirent* entry;
   std::vector<std::string> files;
