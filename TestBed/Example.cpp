@@ -14,43 +14,46 @@ Example::Example(const std::vector<std::string>& fonts)
   : _window(sf::VideoMode(1280, 1024), "HitboxBuilder")
   , _center(1280 / 2, 1024 / 2) {
   _window.setFramerateLimit(30);
-  _window.setKeyRepeatEnabled(false);
 
   _polygonCount.font.loadFromFile(fonts[0]);
   _polygonCount.text.setFont(_polygonCount.font);
   _polygonCount.text.setCharacterSize(40);
   _polygonCount.text.setFillColor(sf::Color::White);
-  _polygonCount.text.setPosition(1.6f * _center.x, 1.8f * _center.y);
+  _polygonCount.text.setPosition(1.3f * _center.x, 1.8f * _center.y);
 }
 
 void Example::run(const std::vector<std::string>& images) {
+  std::vector<sf::VertexArray> bodyVertices;
+  sf::VertexArray boundingBox;
   sf::Event event;
 
   this->loadSprites(images);
-
-  auto tVertices = this->buildPolygon();
-  auto bound = this->buildBoundingBox();
-  _polygonCount.text.setString(std::to_string(tVertices.size()) + " polygons");
+  this->updateDrawables(bodyVertices, boundingBox);
   while (_window.isOpen()) {
     while (_window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         this->close();
       }
       if (this->handleEvents(event)) {
-        tVertices = this->buildPolygon();
-        bound = this->buildBoundingBox();
-        _polygonCount.text.setString(std::to_string(tVertices.size()) + " polygons");
+        this->updateDrawables(bodyVertices, boundingBox);
       }
     }
     _window.clear(sf::Color(0, 0, 0));
     _window.draw(_sprites[_spriteIdx]);
-    for (const auto& v : tVertices) {
+    for (const auto& v : bodyVertices) {
       _window.draw(v);
     }
-    _window.draw(bound);
+    _window.draw(boundingBox);
     _window.draw(_polygonCount.text);
     _window.display();
   }
+}
+
+void Example::updateDrawables(std::vector<sf::VertexArray>& bodyVertices, sf::VertexArray& boundingBox) {
+  bodyVertices = this->buildPolygon();
+  boundingBox = this->buildBoundingBox();
+  _polygonCount.text.setString("Acc: " + std::to_string(_accuracy) + "%, " + std::to_string(bodyVertices.size()) +
+                               " polygons");
 }
 
 void Example::loadSprites(const std::vector<std::string>& images) {
@@ -122,9 +125,9 @@ sf::VertexArray Example::buildBoundingBox() const {
 bool Example::handleEvents(const sf::Event& event) {
   if (event.type == sf::Event::KeyPressed) {
     if (event.key.code == sf::Keyboard::Down) {
-      _accuracy = static_cast<size_t>(std::max(0, static_cast<int>(_accuracy) - 10));
+      _accuracy = static_cast<size_t>(std::max(0, static_cast<int>(_accuracy) - 5));
     } else if (event.key.code == sf::Keyboard::Up) {
-      _accuracy = static_cast<size_t>(std::min(100, static_cast<int>(_accuracy) + 10));
+      _accuracy = static_cast<size_t>(std::min(100, static_cast<int>(_accuracy) + 5));
     } else if (event.key.code == sf::Keyboard::Right) {
       _spriteIdx =
         static_cast<size_t>(std::min(static_cast<int>(_sprites.size()) - 1, static_cast<int>(_spriteIdx) + 1));
