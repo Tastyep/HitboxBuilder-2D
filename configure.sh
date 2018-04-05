@@ -3,7 +3,10 @@
 set -o errexit # set -e: exit the script if any statement returns a non-true value
 
 # Program constants
-ROOT_DIR=$(dirname "${BASH_SOURCE[0]}")
+ROOT_DIR="$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+)"
 BUILD_DIR="$ROOT_DIR/build"
 
 # Program options
