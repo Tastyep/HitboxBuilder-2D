@@ -2,6 +2,7 @@
 #define HITBOX_BUILER_DETAIL_CONTOUR_BUILDER_HPP
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -17,7 +18,6 @@ class ContourBuilder {
  private:
   enum class StepDirection { None, N, W, S, E };
 
-  const uint8_t alphaThreshold = 100;
   const std::array<StepDirection, 16> directions{ {
     StepDirection::None,
     StepDirection::N,
@@ -38,7 +38,7 @@ class ContourBuilder {
   } };
 
  public:
-  std::vector<sf::Vector2i> make(const sf::Sprite& sprite) const;
+  std::vector<sf::Vector2i> make(const sf::Sprite& sprite, size_t accuracy) const;
 
  private:
   sf::Vector2i findStartPoint() const;
@@ -54,6 +54,7 @@ class ContourBuilder {
  private:
   mutable sf::Image* _image;
   mutable sf::IntRect _bound;
+  mutable uint8_t _alphaThreshold;
 };
 
 } /* namespace Detail */

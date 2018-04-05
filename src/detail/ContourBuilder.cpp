@@ -8,10 +8,11 @@
 namespace HitboxBuilder {
 namespace Detail {
 
-std::vector<sf::Vector2i> ContourBuilder::make(const sf::Sprite& sprite) const {
+std::vector<sf::Vector2i> ContourBuilder::make(const sf::Sprite& sprite, size_t accuracy) const {
   const sf::Texture* texture = sprite.getTexture();
   sf::Image image = texture->copyToImage();
 
+  _alphaThreshold = static_cast<uint8_t>(10 + 4 * (accuracy / 10));
   _bound = sprite.getTextureRect();
   _image = &image;
 
@@ -128,7 +129,7 @@ bool ContourBuilder::isPixelSolid(int x, int y) const {
   }
 
   return _image->getPixel(static_cast<unsigned>(x + _bound.left), static_cast<unsigned>(y + _bound.top)).a >
-         alphaThreshold;
+         _alphaThreshold;
 }
 
 } /* namespace Detail */

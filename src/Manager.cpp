@@ -20,7 +20,7 @@ class Manager::Impl {
     , _polygonPartitioner(std::make_unique<Detail::PolygonPartitioner>()) {}
 
   void load(size_t id, const sf::Sprite& sprite, size_t accuracy, bool isCartesian) {
-    auto contour = _contourBuilder->make(sprite);
+    auto contour = _contourBuilder->make(sprite, accuracy);
     auto polygon = _polygonBuilder->make(contour, accuracy);
     auto boundingBox = _boundingBoxBuilder->make(polygon);
     auto polygons = _polygonPartitioner->make(std::move(polygon));
