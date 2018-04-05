@@ -80,6 +80,7 @@ Polygon PolygonBuilder::make2(const Contour& contour, size_t accuracy) const {
 
   _maxDistance = 2.f + 5.f * accuracy / 10;
   std::vector<uint8_t> vertices(contour.size(), 1);
+
   this->fetchFurthestPoint(contour, 0, contour.size() - 1, vertices);
 
   for (size_t i = 0; i < vertices.size(); ++i) {
@@ -88,6 +89,40 @@ Polygon PolygonBuilder::make2(const Contour& contour, size_t accuracy) const {
     }
   }
   return polygon;
+}
+
+void PolygonBuilder::fetchFurthestPoint(const Contour& contour, size_t i, size_t j,
+                                        std::vector<uint8_t>& vertices) const {
+  std::vector<std::pair<size_t, size_t>> indexes;
+
+  indexes.reserve(contour.size());
+  indexes.emplace_back(i, j);
+  while (!indexes.empty()) {
+    std::tie(i, j) = indexes.back();
+    indexes.pop_back();
+    const auto& a = contour[i];
+    const auto& b = contour[j];
+    float maxDistance = 0.f;
+    size_t maxIndex = i;
+
+    for (size_t k = i + 1; k < j; ++k) {
+      const auto& p = contour[k];
+      const auto distance = this->pointSegmentLineDistance(p, a, b);
+
+      if (distance >= maxDistance) {
+        maxDistance = distance;
+        maxIndex = k;
+      }
+    }
+
+    if (maxDistance < _maxDistance) {
+      size_t k = i + 1;
+      std::fill_n(std::next(vertices.begin(), static_cast<int>(k)), j - k, 0);
+      continue;
+    }
+    indexes.emplace_back(i, maxIndex);
+    indexes.emplace_back(maxIndex, j);
+  }
 }
 
 size_t PolygonBuilder::testShortAngle(const Contour& contour, size_t i, const sf::Vector2i&) const {
@@ -143,34 +178,6 @@ float PolygonBuilder::computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v
     std::sqrt(static_cast<float>(v1.x * v1.x + v1.y * v1.y)) * std::sqrt(static_cast<float>(v2.x * v2.x + v2.y * v2.y));
 
   return std::acos(dotProduct / norme) * static_cast<float>(180.f / M_PI);
-}
-
-void PolygonBuilder::fetchFurthestPoint(const Contour& contour, size_t i, size_t j,
-                                        std::vector<uint8_t>& vertices) const {
-  if (i + 1 == j) {
-    return;
-  }
-  const auto& a = contour[i];
-  const auto& b = contour[j];
-  float maxDistance = 0.f;
-  size_t maxIndex = i;
-  for (size_t k = i + 1; k < j; ++k) {
-    const auto& p = contour[k];
-    const auto distance = this->pointSegmentLineDistance(p, a, b);
-
-    if (distance >= maxDistance) {
-      maxDistance = distance;
-      maxIndex = k;
-    }
-  }
-
-  if (maxDistance < _maxDistance) {
-    size_t k = i + 1;
-    std::fill_n(vertices.begin() + k, j - k, 0);
-    return;
-  }
-  fetchFurthestPoint(contour, i, maxIndex, vertices);
-  fetchFurthestPoint(contour, maxIndex, j, vertices);
 }
 
 float PolygonBuilder::pointSegmentLineDistance(const sf::Vector2i& p, const sf::Vector2i& a,
