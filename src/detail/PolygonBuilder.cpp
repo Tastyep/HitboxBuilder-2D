@@ -15,7 +15,7 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   }
   Polygon polygon;
 
-  auto threshold = 2.f + 50.f - 5.f * accuracy / 10;
+  auto threshold = 2.f + 50.f - 5.f * static_cast<float>(accuracy / 10);
   std::vector<uint8_t> vertices(contour.size(), 1);
   this->fetchFurthestPoints(contour, 0, contour.size() - 1, vertices, threshold);
 

@@ -17,7 +17,7 @@ class ContourBuilder {
  private:
   enum class StepDirection { None, N, W, S, E };
 
-  const uint8_t alphaThreshold = 10;
+  const uint8_t alphaThreshold = 100;
   const std::array<StepDirection, 16> directions{ {
     StepDirection::None,
     StepDirection::N,
