@@ -26,6 +26,7 @@ class PolygonBuilder {
 
  public:
   Polygon make(const Contour& contour, size_t accuracy) const;
+  Polygon make2(const Contour& contour, size_t accuracy) const;
 
  private:
   size_t testShortAngle(const Contour& contour, size_t i, const sf::Vector2i& baseDir) const;
@@ -34,6 +35,9 @@ class PolygonBuilder {
 
   size_t findShortIntersection(const Contour& contour, size_t a, float angle) const;
   float computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v2) const;
+  float pointSegmentLineDistance(const sf::Vector2i& p, const sf::Vector2i& a, const sf::Vector2i& b) const;
+
+  void fetchFurthestPoint(const Contour& contour, size_t i, size_t j, std::vector<uint8_t>& vertices) const;
 
  private:
   std::vector<std::function<size_t(const Contour&, size_t, const sf::Vector2i&)>> _testers;
@@ -41,12 +45,13 @@ class PolygonBuilder {
   mutable size_t _maxShortAngle;
   mutable size_t _maxMedAngle;
   mutable size_t _maxAngle;
+  mutable float _maxDistance;
 
   mutable size_t _prevInter;
   mutable bool _baseVecInit;
 };
 
 } /* namespace Detail */
-} /* namespace HitboxBuilder */
+} // namespace HitboxBuilder
 
 #endif

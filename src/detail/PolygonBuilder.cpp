@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstddef>
 
+#include "detail/Math.hpp"
+
 namespace HitboxBuilder {
 namespace Detail {
 
@@ -70,6 +72,24 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
   return polygon;
 }
 
+Polygon PolygonBuilder::make2(const Contour& contour, size_t accuracy) const {
+  if (contour.size() <= 3) {
+    return contour;
+  }
+  Polygon polygon;
+
+  _maxDistance = 2.f + 5.f * accuracy / 10;
+  std::vector<uint8_t> vertices(contour.size(), 1);
+  this->fetchFurthestPoint(contour, 0, contour.size() - 1, vertices);
+
+  for (size_t i = 0; i < vertices.size(); ++i) {
+    if (vertices[i]) {
+      polygon.push_back(contour[i]);
+    }
+  }
+  return polygon;
+}
+
 size_t PolygonBuilder::testShortAngle(const Contour& contour, size_t i, const sf::Vector2i&) const {
   const auto prevDir = contour[i] - contour[i - kMinVecLength];
   const auto nextDir = contour[(i + kMinVecLength) % contour.size()] - contour[i];
@@ -125,5 +145,56 @@ float PolygonBuilder::computeAngle(const sf::Vector2i& v1, const sf::Vector2i& v
   return std::acos(dotProduct / norme) * static_cast<float>(180.f / M_PI);
 }
 
+void PolygonBuilder::fetchFurthestPoint(const Contour& contour, size_t i, size_t j,
+                                        std::vector<uint8_t>& vertices) const {
+  if (i + 1 == j) {
+    return;
+  }
+  const auto& a = contour[i];
+  const auto& b = contour[j];
+  float maxDistance = 0.f;
+  size_t maxIndex = i;
+  for (size_t k = i + 1; k < j; ++k) {
+    const auto& p = contour[k];
+    const auto distance = this->pointSegmentLineDistance(p, a, b);
+
+    if (distance >= maxDistance) {
+      maxDistance = distance;
+      maxIndex = k;
+    }
+  }
+
+  if (maxDistance < _maxDistance) {
+    size_t k = i + 1;
+    std::fill_n(vertices.begin() + k, j - k, 0);
+    return;
+  }
+  fetchFurthestPoint(contour, i, maxIndex, vertices);
+  fetchFurthestPoint(contour, maxIndex, j, vertices);
+}
+
+float PolygonBuilder::pointSegmentLineDistance(const sf::Vector2i& p, const sf::Vector2i& a,
+                                               const sf::Vector2i& b) const {
+  if (a == b) {
+    return Math::pointDistance(p, a);
+  }
+
+  const auto v = b - a;
+  const auto w = p - a;
+  float c1 = Math::vectorDot(w, v);
+  if (c1 <= 0) {
+    return Math::pointDistance(p, a);
+  }
+
+  float c2 = Math::vectorDot(v, v);
+  if (c2 <= c1) {
+    return Math::pointDistance(p, b);
+  }
+
+  float t = c1 / c2;
+  const auto shiftedPoint = static_cast<sf::Vector2f>(a) + (static_cast<sf::Vector2f>(v) * t);
+  return Math::pointDistance(static_cast<sf::Vector2f>(p), shiftedPoint);
+}
+
 } /* namespace Detail */
-} // namespace HitboxBuilder
+} /* namespace HitboxBuilder */
