@@ -1,7 +1,6 @@
 #include "detail/PolygonBuilder.hpp"
 
 #include <algorithm>
-#include <cmath>
 #include <cstddef>
 
 #include "detail/Math.hpp"
@@ -9,13 +8,14 @@
 namespace HitboxBuilder {
 namespace Detail {
 
-Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
+Polygon PolygonBuilder::make(Contour contour, const Polygon& boundingBox, size_t accuracy) const {
   if (contour.size() <= 3) {
     return contour;
   }
-  Polygon polygon;
 
-  auto threshold = 2.f + 50.f - 5.f * static_cast<float>(accuracy / 10);
+  const auto threshold = this->computeThreshold(boundingBox, accuracy);
+
+  Polygon polygon;
   std::vector<uint8_t> vertices(contour.size(), 1);
   this->fetchFurthestPoints(contour, 0, contour.size() - 1, vertices, threshold);
 
@@ -25,6 +25,17 @@ Polygon PolygonBuilder::make(const Contour& contour, size_t accuracy) const {
     }
   }
   return polygon;
+}
+
+float PolygonBuilder::computeThreshold(const Polygon& polygon, size_t accuracy) const {
+  const auto h = std::abs(polygon[0].y - polygon[1].y);
+  const auto w = std::abs(polygon[1].x - polygon[2].x);
+  const auto d = static_cast<float>(std::sqrt(h * h + w * w));
+  const auto scaleFactor = d / kAverageDiagonal;
+  const auto minDistance = 1.5f * scaleFactor;
+  const auto maxDistance = 40.f * scaleFactor;
+
+  return minDistance + maxDistance - (static_cast<float>(accuracy) / 100.f) * maxDistance;
 }
 
 void PolygonBuilder::fetchFurthestPoints(const Contour& contour, size_t i, size_t j, std::vector<uint8_t>& vertices,

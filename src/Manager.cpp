@@ -21,8 +21,8 @@ class Manager::Impl {
 
   void load(size_t id, const sf::Sprite& sprite, size_t accuracy, bool isCartesian) {
     auto contour = _contourBuilder->make(sprite, accuracy);
-    auto polygon = _polygonBuilder->make(contour, accuracy);
-    auto boundingBox = _boundingBoxBuilder->make(polygon);
+    auto boundingBox = _boundingBoxBuilder->make(contour);
+    auto polygon = _polygonBuilder->make(std::move(contour), boundingBox, accuracy);
     auto polygons = _polygonPartitioner->make(std::move(polygon));
 
     if (isCartesian) {
