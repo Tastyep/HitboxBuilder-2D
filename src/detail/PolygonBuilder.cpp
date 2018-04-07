@@ -16,8 +16,8 @@ Polygon PolygonBuilder::make(Contour contour, const Polygon& boundingBox, size_t
   const auto threshold = this->computeThreshold(boundingBox, accuracy);
 
   Polygon polygon;
-  std::vector<uint8_t> vertices(contour.size(), 1);
-  this->fetchFurthestPoints(contour, 0, contour.size() - 1, vertices, threshold);
+  std::vector<uint8_t> vertices(contour.size() - 1, 1);
+  this->fetchFurthestPoints(contour, 0, vertices.size(), vertices, threshold);
 
   for (size_t i = 0; i < vertices.size(); ++i) {
     if (vertices[i]) {
@@ -31,7 +31,7 @@ float PolygonBuilder::computeThreshold(const Polygon& polygon, size_t accuracy) 
   const auto h = std::abs(polygon[0].y - polygon[1].y);
   const auto w = std::abs(polygon[1].x - polygon[2].x);
   const auto d = static_cast<float>(std::sqrt(h * h + w * w));
-  const auto scaleFactor = d / kAverageDiagonal;
+  const auto scaleFactor = std::sqrt(d) / std::sqrt(kAverageDiagonal);
   const auto minDistance = 1.5f * scaleFactor;
   const auto maxDistance = 40.f * scaleFactor;
 
