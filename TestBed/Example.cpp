@@ -1,12 +1,12 @@
 #include "TestBed/Example.hpp"
 
-#include <iostream>
 #include <stdexcept>
 #include <utility>
 
 #include <SFML/Window/Event.hpp>
+#include <SFML/System/Vector2.hpp>
 
-#include "Manager.hpp"
+#include "Module.hpp"
 
 namespace TestBed {
 
@@ -20,6 +20,8 @@ Example::Example(const std::vector<std::string>& fonts)
   _polygonCount.text.setCharacterSize(40);
   _polygonCount.text.setFillColor(sf::Color::White);
   _polygonCount.text.setPosition(1.3f * _center.x, 1.8f * _center.y);
+
+  HitboxBuilder::init();
 }
 
 void Example::run(const std::vector<std::string>& images) {
@@ -50,8 +52,11 @@ void Example::run(const std::vector<std::string>& images) {
 }
 
 void Example::updateDrawables(std::vector<sf::VertexArray>& bodyVertices, sf::VertexArray& boundingBox) {
-  bodyVertices = this->buildPolygon();
-  boundingBox = this->buildBoundingBox();
+  const auto hitbox = HitboxBuilder::make(_sprites[_spriteIdx], _accuracy, false);
+
+  bodyVertices = this->buildPolygon(hitbox.body());
+  boundingBox = this->buildBoundingBox(hitbox.bound());
+
   _polygonCount.text.setString("Acc: " + std::to_string(_accuracy) + "%, " + std::to_string(bodyVertices.size()) +
                                " polygons");
 }
@@ -78,14 +83,11 @@ void Example::loadSprites(const std::vector<std::string>& images) {
   }
 }
 
-std::vector<sf::VertexArray> Example::buildPolygon() {
-  _hitboxManager.load(_spriteIdx, _sprites[_spriteIdx], _accuracy, false);
-
+std::vector<sf::VertexArray> Example::buildPolygon(const std::vector<hb::Polygon>& polygons) {
   // Compute the values to center the drawing.
   const auto origin = _sprites[_spriteIdx].getOrigin();
   const auto offset = static_cast<sf::Vector2f>(_center) - origin;
 
-  const auto polygons = _hitboxManager.get(_spriteIdx).body();
   std::vector<sf::VertexArray> bodyVertices;
 
   // Convert the polygons into drawable ones.
@@ -106,8 +108,7 @@ std::vector<sf::VertexArray> Example::buildPolygon() {
   return bodyVertices;
 }
 
-sf::VertexArray Example::buildBoundingBox() const {
-  const auto& boundingBox = _hitboxManager.get(_spriteIdx).bound();
+sf::VertexArray Example::buildBoundingBox(const hb::Polygon& boundingBox) const {
   sf::VertexArray bound(sf::PrimitiveType::LineStrip, 0);
 
   // Compute the values to center the drawing.
