@@ -1,6 +1,8 @@
 #include "detail/Triangulator.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <tuple>
 
 namespace HitboxBuilder {
@@ -12,16 +14,18 @@ std::vector<Polygon> Triangulator::convert(Polygon polygon) const {
   Triangle ear;
   bool success;
 
-  std::move(polygon.begin(), polygon.end(), std::back_inserter(vertices));
-  polygon.clear();
+  std::transform(std::make_move_iterator(polygon.begin()),
+                 std::make_move_iterator(polygon.end()),
+                 std::back_inserter(vertices),
+                 [](auto&& p) { return Vertex(std::forward<Point>(p)); });
   this->initVertices(vertices);
   for (auto& vertex : vertices) {
     this->updateVertex(vertices, vertex);
   }
 
   size_t i = 0;
-  size_t nbVertices = vertices.size();
-  while ((std::tie(success, ear) = this->nextEar(vertices, nbVertices, i)), success) {
+  size_t vertexCount = vertices.size();
+  while ((std::tie(success, ear) = this->nextEar(vertices, vertexCount, i)), success) {
     triangles.push_back(std::move(ear));
     ++i;
   }
@@ -61,12 +65,12 @@ void Triangulator::updateVertex(const std::vector<Vertex>& vertices, Vertex& ver
 }
 
 std::pair<bool, Triangulator::Triangle>
-Triangulator::nextEar(std::vector<Vertex>& polygon, size_t nbVertices, size_t vertexIndex) const {
+Triangulator::nextEar(std::vector<Vertex>& polygon, size_t vertexCount, size_t vertexIndex) const {
   Triangle triangle;
   Vertex* ear = nullptr;
 
-  if (vertexIndex < nbVertices - 3) {
-    for (size_t j = 0; j < nbVertices; ++j) {
+  if (vertexIndex < vertexCount - 3) {
+    for (size_t j = 0; j < vertexCount; ++j) {
       auto& v = polygon[j];
 
       if (!v.isActive || !v.isEar) {
@@ -87,12 +91,12 @@ Triangulator::nextEar(std::vector<Vertex>& polygon, size_t nbVertices, size_t ve
     ear->prev->next = ear->next;
     ear->next->prev = ear->prev;
 
-    if (vertexIndex < nbVertices - 4) {
+    if (vertexIndex < vertexCount - 4) {
       this->updateVertex(polygon, *ear->prev);
       this->updateVertex(polygon, *ear->next);
     }
-  } else if (vertexIndex == nbVertices - 3) {
-    for (size_t i = 0; i < nbVertices; i++) {
+  } else if (vertexIndex == vertexCount - 3) {
+    for (size_t i = 0; i < vertexCount; i++) {
       const auto& v = polygon[i];
       if (v.isActive) {
         triangle = Triangle{ v.prev->p, v.p, v.next->p };

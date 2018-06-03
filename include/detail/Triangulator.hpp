@@ -1,11 +1,9 @@
 #ifndef HITBOX_BUILDER_DETAIL_TRIANGULATOR_HPP
 #define HITBOX_BUILDER_DETAIL_TRIANGULATOR_HPP
 
-#include <stddef.h>
+#include <cstddef>
 #include <utility>
 #include <vector>
-
-#include <SFML/System/Vector2.hpp>
 
 #include "Types.hpp"
 
@@ -19,7 +17,7 @@ class Triangulator {
 
  private:
   struct Vertex {
-    Vertex(Point&& p)
+    explicit Vertex(Point&& p)
       : p(std::forward<Point>(p)) {}
 
     Point p;
@@ -45,7 +43,7 @@ class Triangulator {
  private:
   void initVertices(std::vector<Vertex>& vertices) const;
   void updateVertex(const std::vector<Vertex>& vertices, Vertex& vertex) const;
-  std::pair<bool, Triangle> nextEar(std::vector<Vertex>& polygon, size_t nbVertices, size_t verticeIndex) const;
+  std::pair<bool, Triangle> nextEar(std::vector<Vertex>& polygon, size_t vertexCount, size_t vertexIndex) const;
   bool isPointContained(const Point& a, const Point& b, const Point& c, const Point& p) const;
   sf::Vector2f normalize(const Point& p) const;
 
