@@ -12,7 +12,6 @@ using Polygon = std::vector<sf::Vector2i>;
 
 class Hitbox {
  public:
-  Hitbox() = default;
   Hitbox(std::vector<Polygon> body, Polygon bound)
     : _body(std::move(body))
     , _bound(std::move(bound)) {}
