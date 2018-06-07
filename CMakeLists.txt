@@ -46,9 +46,7 @@ if(HITBOX_BUILDER_ENABLE_CLANGTIDY AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 if(HITBOX_BUILDER_BUILD_TESTBED)
-  message(STATUS "Configuring target '${TESTER_NAME}'")
-  add_executable(${TESTER_NAME} ${TESTBED_SOURCE_FILES})
-  target_link_libraries (${TESTER_NAME} ${EXTERNAL_LIBRARIES} ${PROJECT_NAME})
+  include(EnableTests)
 endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${LIB_DIR})

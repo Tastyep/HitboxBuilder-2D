@@ -1,6 +1,6 @@
 message(STATUS "[SFML] Resolving internal dependency")
 
-set(MIN_SFML_VERSION 2.3.2)
+set(MIN_SFML_VERSION 2.0.0)
 
 find_package(SFML ${MIN_SFML_VERSION} REQUIRED system window graphics audio)
 
