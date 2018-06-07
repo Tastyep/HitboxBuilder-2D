@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include <SFML/Window/Event.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>
 
 #include "Module.hpp"
 
@@ -18,7 +18,7 @@ Example::Example(const std::vector<std::string>& fonts)
   _polygonCount.font.loadFromFile(fonts[0]);
   _polygonCount.text.setFont(_polygonCount.font);
   _polygonCount.text.setCharacterSize(40);
-  _polygonCount.text.setFillColor(sf::Color::White);
+  _polygonCount.text.setFillColor(sf::Color::Black);
   _polygonCount.text.setPosition(1.3f * _center.x, 1.8f * _center.y);
 
   HitboxBuilder::init();
@@ -40,8 +40,10 @@ void Example::run(const std::vector<std::string>& images) {
         this->updateDrawables(bodyVertices, boundingBox);
       }
     }
-    _window.clear(sf::Color(0, 0, 0));
-    _window.draw(_sprites[_spriteIdx]);
+    _window.clear(sf::Color(255, 255, 255));
+    if (_displaySprite) {
+      _window.draw(_sprites[_spriteIdx]);
+    }
     for (const auto& v : bodyVertices) {
       _window.draw(v);
     }
@@ -98,10 +100,9 @@ std::vector<sf::VertexArray> Example::buildPolygon(const std::vector<hb::Polygon
       auto p = static_cast<sf::Vector2f>(polygon[j]);
 
       p += offset;
-      poly.append(sf::Vertex(p, j % 2 == 0 ? sf::Color::Red : sf::Color::Cyan));
+      poly.append(sf::Vertex(p, sf::Color::Black));
     }
-    poly.append(sf::Vertex(static_cast<sf::Vector2f>(polygon.front()) + offset,
-                           polygon.size() % 2 == 0 ? sf::Color::Red : sf::Color::Cyan));
+    poly.append(sf::Vertex(static_cast<sf::Vector2f>(polygon.front()) + offset, sf::Color::Black));
     bodyVertices.push_back(std::move(poly));
   }
 
@@ -116,29 +117,35 @@ sf::VertexArray Example::buildBoundingBox(const hb::Polygon& boundingBox) const 
   const auto offset = static_cast<sf::Vector2f>(_center) - origin;
 
   for (const auto& p : boundingBox) {
-    bound.append(sf::Vertex(static_cast<sf::Vector2f>(p) + offset));
+    bound.append(sf::Vertex(static_cast<sf::Vector2f>(p) + offset, sf::Color::Black));
   }
-  bound.append(sf::Vertex(static_cast<sf::Vector2f>(boundingBox.front()) + offset));
+  bound.append(sf::Vertex(static_cast<sf::Vector2f>(boundingBox.front()) + offset, sf::Color::Black));
 
   return bound;
 }
 
 bool Example::handleEvents(const sf::Event& event) {
   if (event.type == sf::Event::KeyPressed) {
-    if (event.key.code == sf::Keyboard::Down) {
-      _accuracy = static_cast<size_t>(std::max(0, static_cast<int>(_accuracy) - 5));
-    } else if (event.key.code == sf::Keyboard::Up) {
-      _accuracy = static_cast<size_t>(std::min(100, static_cast<int>(_accuracy) + 5));
-    } else if (event.key.code == sf::Keyboard::Right) {
-      _spriteIdx =
-        static_cast<size_t>(std::min(static_cast<int>(_sprites.size()) - 1, static_cast<int>(_spriteIdx) + 1));
-    } else if (event.key.code == sf::Keyboard::Left) {
+    // clang-format off
+    switch (event.key.code) {
+    case sf::Keyboard::Down:
+      _accuracy = static_cast<size_t>(std::max(0, static_cast<int>(_accuracy) - kAccIncrement));
+      break;
+    case sf::Keyboard::Up:
+      _accuracy = static_cast<size_t>(std::min(100, static_cast<int>(_accuracy) + kAccIncrement));
+      break;
+    case sf::Keyboard::Right:
+      _spriteIdx = static_cast<size_t>(std::min(static_cast<int>(_sprites.size()) - 1, static_cast<int>(_spriteIdx) + 1));
+      break;
+    case sf::Keyboard::Left:
       _spriteIdx = static_cast<size_t>(std::max(0, static_cast<int>(_spriteIdx) - 1));
+      break;
+    case sf::Keyboard::Space:
+      _displaySprite = !_displaySprite;
+    default:
+      break;
     }
-    return event.key.code == sf::Keyboard::Left ||  //
-           event.key.code == sf::Keyboard::Right || //
-           event.key.code == sf::Keyboard::Up ||    //
-           event.key.code == sf::Keyboard::Down;
+    return true;
   }
   return false;
 }

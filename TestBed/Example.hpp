@@ -18,6 +18,9 @@ namespace TestBed {
 
 class Example {
  public:
+  const int kAccIncrement = 2;
+
+ public:
   explicit Example(const std::vector<std::string>& fonts);
 
   void run(const std::vector<std::string>& images);
@@ -44,6 +47,7 @@ class Example {
  private:
   size_t _accuracy{ 50 };
   size_t _spriteIdx{ 0 };
+  bool _displaySprite{ true };
   sf::Vector2i _center;
   Text _polygonCount;
 };
