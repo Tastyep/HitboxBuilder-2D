@@ -10,7 +10,7 @@ ROOT_DIR="$(
 BUILD_DIR="$ROOT_DIR/build"
 
 # Program options
-CXX="g++"
+CXX=${CXX:-"g++"}
 
 function usage() {
   echo -e "Usage:\n$0 [options]"
